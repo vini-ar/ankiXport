@@ -152,6 +152,14 @@
         </header>
 
         <section id="input-section" class="">
+
+            <div class="mb-6">
+                <label for="json-preset-select" class="block text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">Escolha um arquivo JSON:</label>
+                <select id="json-preset-select"
+                        class="w-full shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring focus:ring-blue-300 dark:focus:ring-blue-500/40 focus:ring-opacity-50 rounded-lg">
+                    <option value="">-- Selecione um arquivo --</option>
+                    </select>
+            </div>
             <label for="ai-response" class="block text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">Paste the AnkiAI JSON response</label>
             <textarea id="ai-response"
                       rows="12"
@@ -239,6 +247,34 @@
          * @property {boolean} exported - Whether the flashcard has been included in a previous export.
          */
 
+
+        // =================================================================
+        // == MODIFIQUE ESTA LISTA COM SEUS ARQUIVOS ========================
+        // =================================================================
+        // Liste os arquivos que estão na sua pasta /json_files/
+        // - 'name': O nome que aparecerá no dropdown (ex: "Biologia - Aula 1").
+        // - 'path': O caminho para o arquivo, relativo ao 'index.html'.
+
+        const PRESET_JSON_FILES = [
+            {
+                name: 'Biologia - TP 13 (Exemplo)',
+                path: 'json_files/biologia_tp13.txt'
+            },
+            {
+                name: 'Histologia - Aula 5 (Exemplo)',
+                path: 'json_files/histologia_aula5.txt'
+            },
+            // Adicione quantos arquivos quiser
+            // {
+            //     name: 'Nome do Seu Novo Arquivo',
+            //     path: 'json_files/outro_arquivo.txt'
+            // },
+        ];
+        // =================================================================
+        // == FIM DA LISTA DE ARQUIVOS =====================================
+        // =================================================================
+
+
         /**
          * AnkiXportApp
          * Handles processing AnkiAI JSON output, displaying flashcards,
@@ -290,6 +326,9 @@
                 this.elements.inputSection = document.getElementById('input-section'); // Needed for border styling toggle
                 this.elements.notificationArea = document.getElementById('notification-area');
 
+                // --- LINHA ADICIONADA ---
+                this.elements.jsonPresetSelect = document.getElementById('json-preset-select');
+
                 // Store original button texts for loading state management
                 // These should be the English texts from the HTML now
                 this.originalButtonText.processBtn = this.elements.processBtn.textContent;
@@ -327,6 +366,9 @@
                     field.addEventListener('input', this.handleInput.bind(this));
                 });
 
+                // --- LINHA ADICIONADA ---
+                this.elements.jsonPresetSelect.addEventListener('change', this.handlePresetSelect.bind(this));
+
                 // Listen for changes on flashcard checkboxes (using event delegation)
                 this.elements.flashcardsList.addEventListener('change', this.handleFlashcardCheckboxChange.bind(this));
             },
@@ -338,12 +380,109 @@
             init() {
                 this.cacheElements();
                 this.bindEvents();
+                
+                // --- LINHA ADICIONADA ---
+                this.populatePresetSelector(); // Preenche o dropdown na inicialização
+
                 console.info("AnkiXportApp initialized.");
                 if (!document.queryCommandSupported || !document.queryCommandSupported('insertHTML')) {
                     // Fully translated warning message
                     this.showMessage("Warning: The 'insertHTML' command might not be fully supported by this browser.", 'info', 8000);
                 }
             },
+
+            // =================================================================
+            // == NOVAS FUNÇÕES ADICIONADAS ====================================
+            // =================================================================
+
+            /**
+             * Preenche o dropdown de JSONs predefinidos com base na constante PRESET_JSON_FILES.
+             * @memberof AnkiXportApp
+             */
+            populatePresetSelector() {
+                try {
+                    const selectEl = this.elements.jsonPresetSelect;
+                    if (!selectEl || typeof PRESET_JSON_FILES === 'undefined' || PRESET_JSON_FILES.length === 0) {
+                        if (selectEl) selectEl.parentElement.classList.add('hidden'); // Esconde o dropdown se não houver dados
+                        return;
+                    }
+
+                    const fragment = document.createDocumentFragment();
+                    PRESET_JSON_FILES.forEach(file => {
+                        const option = document.createElement('option');
+                        option.value = file.path; // O valor é o CAMINHO
+                        option.textContent = file.name; // Ex: "Biologia - TP 13"
+                        fragment.appendChild(option);
+                    });
+                    selectEl.appendChild(fragment);
+
+                } catch (error) {
+                    console.error("Erro ao preencher o seletor de JSON:", error);
+                    if (this.elements.jsonPresetSelect) this.elements.jsonPresetSelect.parentElement.classList.add('hidden');
+                }
+            },
+
+            /**
+             * Lida com a mudança de seleção no dropdown de JSONs predefinidos.
+             * Carrega o arquivo JSON/TXT selecionado usando fetch() e o processa.
+             * @memberof AnkiXportApp
+             * @param {Event} event - O evento de mudança do select.
+             */
+            async handlePresetSelect(event) {
+                const selectedPath = event.target.value;
+                const textarea = this.elements.aiResponseTextarea;
+                const selectEl = this.elements.jsonPresetSelect;
+
+                if (!selectedPath) {
+                    textarea.value = ''; // Limpa se o usuário selecionar "-- Selecione --"
+                    return;
+                }
+
+                // Desabilita o select e o botão enquanto carrega
+                selectEl.disabled = true;
+                this.setButtonLoading('processBtn', true);
+
+                try {
+                    // 1. Busca o arquivo de texto
+                    const response = await fetch(selectedPath);
+
+                    // 2. Verifica se o arquivo foi encontrado (Erro 404, etc.)
+                    if (!response.ok) {
+                        throw new Error(`Falha ao carregar o arquivo: ${response.status} ${response.statusText}`);
+                    }
+
+                    // 3. Pega o conteúdo de texto do arquivo
+                    const jsonString = await response.text();
+
+                    // 4. Coloca o texto (JSON) no textarea
+                    textarea.value = jsonString;
+
+                    // 5. Clica no botão "Processar JSON" automaticamente
+                    this.elements.processBtn.click(); // O 'finally' irá reabilitar o botão
+
+                    // 6. Mostra uma notificação de sucesso
+                    const selectedName = selectEl.options[selectEl.selectedIndex].text;
+                    this.showMessage(`'${selectedName}' carregado e processado!`, 'success', 3000);
+
+                } catch (error) {
+                    console.error("Erro ao carregar JSON predefinido via fetch:", error);
+                    textarea.value = ''; // Limpa em caso de erro
+                    this.showMessage(`Erro ao carregar: ${error.message}`, 'error');
+                    // Garante que o processamento seja interrompido se o fetch falhar
+                    this.setButtonLoading('processBtn', false); 
+                } finally {
+                    // Reabilita o select (o botão de processar é reabilitado dentro de processText())
+                    selectEl.disabled = false;
+                    // Se o processText() não foi chamado (devido a erro), garantimos que o botão é reabilitado
+                    if (this.elements.processBtn.disabled) {
+                        this.setButtonLoading('processBtn', false);
+                    }
+                }
+            },
+            // =================================================================
+            // == FIM DAS NOVAS FUNÇÕES ========================================
+            // =================================================================
+
 
             // --- UI & Feedback ---
 
@@ -404,6 +543,14 @@
                 this.elements.globalFrontExtra.innerHTML = '';
                 this.elements.globalBackExtra.innerHTML = '';
 
+                // --- ADICIONADO ---
+                // Reseta o dropdown para a opção padrão
+                if (this.elements.jsonPresetSelect) {
+                    this.elements.jsonPresetSelect.value = '';
+                    this.elements.jsonPresetSelect.disabled = false;
+                }
+                // --- FIM ---
+
                 // Hide result sections
                 this.elements.explanationSection.classList.add('hidden');
                 this.elements.modificationsSection.classList.add('hidden');
@@ -449,6 +596,12 @@
 
                 button.textContent = isLoading ? loadingText : originalText;
             },
+
+// ... (O RESTANTE DO SEU CÓDIGO JAVASCRIPT CONTINUA INALTERADO) ...
+// (Todo o código de renderFlashcards, handleFlashcardCheckboxChange, toggleSelectAll, 
+// processText, exportFlashcards, escapeTsvField, parseFlashcardHtml, 
+// optimizeAndConvertToBase64, handleInput, e handlePaste continua aqui)
+// ...
 
             // --- Flashcard Rendering & Handling ---
 
@@ -987,3 +1140,8 @@
             AnkiXportApp.init();
         });
     </script>
+
+
+
+</body>
+</html>
