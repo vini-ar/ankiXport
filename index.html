@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en"> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnkiXport</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* Import Google Font 'Inter' */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        /* Apply base font family */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- ContentEditable Extra Fields --- */
+        /* Style for placeholder text when empty */
+        .global-extra-field:empty::before {
+            content: attr(data-placeholder); /* Get placeholder text from data attribute */
+            color: #9ca3af; /* Default placeholder color (gray-400) */
+            pointer-events: none;
+            display: block;
+            min-height: 1.5em;
+            cursor: text;
+        }
+        @media (prefers-color-scheme: dark) {
+            .global-extra-field:empty::before { color: #6b7280; /* Dark mode (gray-500) */ }
+        }
+        .global-extra-field:not(:empty) { color: inherit; } /* Reset color when not empty */
+        /* Base styles for contenteditable fields */
+        .global-extra-field {
+            min-height: 1.5em;
+            cursor: text;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        /* Styles for pasted images within contenteditable fields */
+        .global-extra-field img {
+            max-width: 250px; /* Max visual width in editor */
+            max-height: 200px; /* Max visual height in editor */
+            height: auto;
+            display: inline-block;
+            vertical-align: middle;
+            margin: 5px;
+            border: 1px solid #ccc;
+        }
+        @media (prefers-color-scheme: dark) {
+            .global-extra-field img { border-color: #555; }
+        }
+
+        /* --- Custom Scrollbar --- */
+        html { /* Firefox */
+            scrollbar-width: thin;
+            scrollbar-color: #9ca3af #f3f4f6; /* thumb track */
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; } /* Webkit */
+        ::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 0.375rem; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 0.375rem; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        @media (prefers-color-scheme: dark) { /* Dark mode scrollbar */
+            html { scrollbar-color: #6b7280 #374151; }
+            ::-webkit-scrollbar-track { background: #374151; }
+            ::-webkit-scrollbar-thumb { background: #6b7280; }
+            ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        }
+
+        /* --- Formatted Content (Explanation/Modifications) --- */
+        .formatted-content { line-height: 1.6; }
+        .formatted-content ul, .formatted-content ol { margin-left: 1.25rem; margin-top: 0.75rem; margin-bottom: 0.75rem; padding-left: 1rem; }
+        .formatted-content ul { list-style-type: disc; }
+        .formatted-content ol { list-style-type: decimal; }
+        .formatted-content li { margin-bottom: 0.4rem; }
+        .formatted-content p { margin-bottom: 1rem; }
+        .formatted-content p:last-child { margin-bottom: 0; }
+        /* Rich text element styling */
+        #explanation-content strong, #explanation-content b,
+        #modifications-content strong, #modifications-content b { font-weight: 600; color: #1f2937; }
+        #explanation-content em, #explanation-content i,
+        #modifications-content em, #modifications-content i { font-style: italic; color: #374151; }
+        #explanation-content code,
+        #modifications-content code { background-color: #e5e7eb; padding: 0.15em 0.4em; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; color: #1f2937; word-wrap: break-word; white-space: normal; }
+        #explanation-content sub, #explanation-content sup,
+        #modifications-content sub, #modifications-content sup { font-size: 0.75em; line-height: 0; position: relative; vertical-align: baseline; }
+        #explanation-content sub, #modifications-content sub { bottom: -0.25em; }
+        #explanation-content sup, #modifications-content sup { top: -0.5em; }
+        #explanation-content pre { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; overflow-x: auto; margin-bottom: 1rem; font-family: monospace; font-size: 0.875rem; border: 1px solid #e5e7eb; white-space: pre-wrap; word-wrap: break-word; }
+        #explanation-content pre code { background-color: transparent; padding: 0; border-radius: 0; font-size: inherit; color: inherit; white-space: pre-wrap; }
+        #explanation-content blockquote { border-left: 4px solid #d1d5db; padding-left: 1rem; margin-left: 0; margin-bottom: 1rem; color: #4b5563; font-style: italic; }
+        #explanation-content hr { border-top: 1px solid #e5e7eb; margin: 1.5rem 0; }
+        #explanation-content h1, #explanation-content h2, #explanation-content h3, #explanation-content h4 { font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; line-height: 1.3; }
+        #explanation-content h1 { font-size: 1.875rem; } #explanation-content h2 { font-size: 1.5rem; } #explanation-content h3 { font-size: 1.25rem; } #explanation-content h4 { font-size: 1.125rem; }
+        /* Dark mode overrides for rich text */
+        @media (prefers-color-scheme: dark) {
+            #explanation-content strong,#explanation-content b,#modifications-content strong,#modifications-content b { color: #f9fafb; }
+            #explanation-content em,#explanation-content i,#modifications-content em,#modifications-content i { color: #d1d5db; }
+            #explanation-content code,#modifications-content code { background-color: #374151; color: #f3f4f6; }
+            #explanation-content pre { background-color: #1f2937; border-color: #4b5563; }
+            #explanation-content pre code { background-color: transparent; color: inherit; }
+            #explanation-content blockquote { border-left-color: #4b5563; color: #9ca3af; }
+            #explanation-content hr { border-top-color: #4b5563; }
+            #explanation-content h1,#explanation-content h2,#explanation-content h3,#explanation-content h4 { color: #f9fafb; }
+        }
+
+        /* --- UI Elements --- */
+        .export-status { display: inline-block; vertical-align: middle; margin-top: 0.35rem; }
+        .action-button { padding: 0.6rem 1.25rem; font-weight: 600; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, opacity 0.2s ease-in-out; cursor: pointer; }
+        .action-button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .action-button:focus { outline: none; } /* Rely on Tailwind focus rings */
+        .button-clear-extra { padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 500; border-radius: 0.375rem; margin-top: 0.5rem; border: 1px solid; transition: background-color 0.2s ease-in-out; }
+        #ai-response { padding: 0.75rem; border-radius: 0.5rem; transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; line-height: 1.5; border: 1px solid; font-family: monospace; }
+        #ai-response:focus { outline: 2px solid transparent; outline-offset: 2px; } /* Rely on Tailwind focus rings */
+        .section-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; }
+        .section-content-box { border: 1px solid; border-radius: 0.5rem; padding: 1.25rem; }
+
+        /* --- Flashcard List Styling --- */
+        .flashcard-item { padding: 1rem; border: 1px solid; border-radius: 0.5rem; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out; display: flex; align-items: flex-start; }
+        .flashcard-text-container { font-size: 0.875rem; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid; word-wrap: break-word; line-height: 1.5; }
+        .flashcard-question, .flashcard-answer { margin-bottom: 0.5rem; }
+        .flashcard-answer code { background-color: #dbeafe; color: #1e40af; padding: 0.2em 0.4em; border-radius: 0.25rem; font-weight: 500; }
+        @media (prefers-color-scheme: dark) {
+            .flashcard-answer code { background-color: #1e3a8a; color: #bfdbfe; }
+        }
+        .flashcard-label { cursor: pointer; width: 100%; }
+        .flashcard-checkbox { margin-top: 0.2rem; margin-right: 0.75rem; flex-shrink: 0; height: 1.1rem; width: 1.1rem; }
+        .flashcard-content-wrapper { flex-grow: 1; }
+
+        /* --- Notification Area Styling --- */
+        #notification-area { position: fixed; top: 1rem; right: 1rem; z-index: 1050; width: 300px; max-width: 90%; }
+        .notification-toast { background-color: #fff; color: #333; border-radius: 0.375rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); opacity: 0; transform: translateX(100%); transition: opacity 0.5s ease-out, transform 0.5s ease-out; border-left-width: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .notification-toast.show { opacity: 1; transform: translateX(0); }
+        .notification-toast.success { border-left-color: #10b981; }
+        .notification-toast.error   { border-left-color: #ef4444; }
+        .notification-toast.info    { border-left-color: #3b82f6; }
+        .notification-toast-close { background: none; border: none; color: #6b7280; font-size: 1.2rem; cursor: pointer; padding: 0 0 0 0.5rem; line-height: 1; }
+        @media (prefers-color-scheme: dark) { /* Dark mode notifications */
+            .notification-toast { background-color: #374151; color: #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15); }
+            .notification-toast.success { border-left-color: #34d399; }
+            .notification-toast.error   { border-left-color: #f87171; }
+            .notification-toast.info    { border-left-color: #60a5fa; }
+            .notification-toast-close { color: #9ca3af; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans p-4 sm:p-6 md:p-8 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+    <div class="container mx-auto max-w-5xl flex flex-col gap-8 md:gap-12 bg-white dark:bg-gray-800 p-6 md:p-10 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
+
+        <header class="text-center">
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100">AnkiXport</h1>
+            <p class="mt-2 text-lg text-gray-500 dark:text-gray-400">Organize and Export your Flashcards generated by AnkiAI</p>
+        </header>
+
+        <section id="input-section" class="">
+            <label for="ai-response" class="block text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">Paste the AnkiAI JSON response</label>
+            <textarea id="ai-response"
+                      rows="12"
+                      class="w-full shadow-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring focus:ring-blue-300 dark:focus:ring-blue-500/40 focus:ring-opacity-50 dark:placeholder-gray-400 rounded-lg"
+                      placeholder='Paste the JSON generated by AnkiAI here.'></textarea>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button id="process-btn" class="action-button button-primary bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white focus:ring-blue-300 dark:focus:ring-blue-500/40">
+                    Process JSON
+                </button>
+                <button id="reset-btn" class="action-button button-secondary-red bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 text-white focus:ring-red-300 dark:focus:ring-red-500/40">
+                    Clear
+                </button>
+            </div>
+        </section>
+
+        <section id="explanation-section" class="hidden">
+            <h2 class="section-title text-gray-900 dark:text-gray-100">Elaborated Explanation</h2>
+            <div id="explanation-content" class="section-content-box bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 formatted-content">
+                </div>
+        </section>
+
+        <section id="modifications-section" class="hidden">
+            <h2 class="section-title text-gray-900 dark:text-gray-100">Modifications/Integrations Made</h2>
+            <div id="modifications-content" class="section-content-box bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 formatted-content">
+                </div>
+        </section>
+
+        <section id="flashcards-section" class="hidden">
+            <h2 class="section-title text-gray-900 dark:text-gray-100">
+                Flashcards
+                <span id="flashcard-counter" class="text-sm font-medium text-gray-600 dark:text-gray-400 ml-3" aria-live="polite"></span> </h2>
+            <div class="flex justify-center mb-6 space-x-4">
+                <button id="select-all-btn" class="action-button button-secondary-green bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white focus:ring-green-300 dark:focus:ring-green-500/40">
+                    Select Valid
+                </button>
+                <button id="deselect-all-btn" class="action-button button-secondary-yellow bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700 text-white focus:ring-amber-300 dark:focus:ring-amber-500/40">
+                    Deselect All
+                </button>
+            </div>
+            <div id="flashcards-list" class="space-y-4"></div> </section>
+
+        <section id="export-section" class="hidden">
+            <h2 class="section-title justify-center mb-6 text-gray-900 dark:text-gray-100">Add Extra Fields</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label id="front-extra-label" for="global-front-extra" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Front Extra (Optional):</label>
+                    <div id="global-front-extra"
+                         contenteditable="true"
+                         aria-labelledby="front-extra-label"
+                         data-placeholder="Add extra notes (HTML) for the front here."
+                         class="global-extra-field text-sm shadow-sm border border-gray-300 dark:border-gray-600 p-3 h-28 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 overflow-y-auto w-full focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-500/40 focus:border-blue-500 dark:focus:border-blue-400"></div>
+                    <button id="clear-front-extra-btn" class="button-clear-extra bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-200 border-gray-300 dark:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-500">Clear</button>
+                </div>
+                <div>
+                    <label id="back-extra-label" for="global-back-extra" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Back Extra (Optional):</label>
+                    <div id="global-back-extra"
+                         contenteditable="true"
+                         aria-labelledby="back-extra-label"
+                         data-placeholder="Add extra notes (HTML) for the back here."
+                         class="global-extra-field text-sm shadow-sm border border-gray-300 dark:border-gray-600 p-3 h-28 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 overflow-y-auto w-full focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-500/40 focus:border-blue-500 dark:focus:border-blue-400"></div>
+                    <button id="clear-back-extra-btn" class="button-clear-extra bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-200 border-gray-300 dark:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-500">Clear</button>
+                </div>
+            </div>
+            <div class="text-center">
+                <button id="export-btn" class="action-button button-export bg-purple-600 hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white py-3 px-6 text-base focus:ring-purple-300 dark:focus:ring-purple-500/40">
+                    Export Selected (.tsv)
+                </button>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-4 px-4">
+                    The generated TSV file is ready for import into Anki using a Cloze note type (fields: Text, Front Extra, Back Extra). Ensure that the import interprets HTML.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="notification-area" aria-live="polite"></div>
+
+    <script>
+        /**
+         * @typedef {Object} FlashcardData
+         * @property {string} id - Unique identifier for the flashcard (e.g., 'fc-1').
+         * @property {string} originalText - The raw text/HTML content of the flashcard (Cloze format).
+         * @property {boolean} selected - Whether the flashcard is currently selected for export.
+         * @property {boolean} isValid - Whether the flashcard text contains a valid Cloze deletion pattern.
+         * @property {boolean} exported - Whether the flashcard has been included in a previous export.
+         */
+
+        /**
+         * AnkiXportApp
+         * Handles processing AnkiAI JSON output, displaying flashcards,
+         * allowing selection, adding extra fields with image pasting/optimization,
+         * and exporting to TSV for Anki import.
+         * Uses Clipboard API to read data for processing/optimization, and
+         * `document.execCommand('insertHTML')` for final insertion into contenteditable fields.
+         */
+        const AnkiXportApp = {
+            // --- State ---
+            /** @type {FlashcardData[]} */
+            flashcardsData: [],     // Holds processed flashcard objects
+            originalButtonText: {}, // Stores original text for buttons to restore after loading state
+            elements: {},           // Cache for frequently accessed DOM elements
+
+            // --- Configuration ---
+            imageOptimization: {
+                maxWidth: 800,      // Max width for optimized images (pixels)
+                maxHeight: 800,     // Max height for optimized images (pixels)
+                quality: 0.85,      // Compression quality for JPEG/WebP (0 to 1)
+                outputFormat: 'image/jpeg' // Preferred format for photos/complex images. Use 'image/png' for lossless or transparency.
+            },
+
+            // --- Initialization ---
+
+            /**
+             * Caches references to DOM elements used by the application.
+             * @memberof AnkiXportApp
+             */
+            cacheElements() {
+                this.elements.aiResponseTextarea = document.getElementById('ai-response');
+                this.elements.processBtn = document.getElementById('process-btn');
+                this.elements.resetBtn = document.getElementById('reset-btn');
+                this.elements.explanationSection = document.getElementById('explanation-section');
+                this.elements.explanationContent = document.getElementById('explanation-content');
+                this.elements.modificationsSection = document.getElementById('modifications-section');
+                this.elements.modificationsContent = document.getElementById('modifications-content');
+                this.elements.flashcardsSection = document.getElementById('flashcards-section');
+                this.elements.flashcardsList = document.getElementById('flashcards-list');
+                this.elements.flashcardCounterElement = document.getElementById('flashcard-counter');
+                this.elements.selectAllBtn = document.getElementById('select-all-btn');
+                this.elements.deselectAllBtn = document.getElementById('deselect-all-btn');
+                this.elements.exportSection = document.getElementById('export-section');
+                this.elements.exportBtn = document.getElementById('export-btn');
+                this.elements.globalFrontExtra = document.getElementById('global-front-extra');
+                this.elements.globalBackExtra = document.getElementById('global-back-extra');
+                this.elements.clearFrontExtraBtn = document.getElementById('clear-front-extra-btn');
+                this.elements.clearBackExtraBtn = document.getElementById('clear-back-extra-btn');
+                this.elements.inputSection = document.getElementById('input-section'); // Needed for border styling toggle
+                this.elements.notificationArea = document.getElementById('notification-area');
+
+                // Store original button texts for loading state management
+                // These should be the English texts from the HTML now
+                this.originalButtonText.processBtn = this.elements.processBtn.textContent;
+                this.originalButtonText.exportBtn = this.elements.exportBtn.textContent;
+                this.originalButtonText.selectAllBtn = this.elements.selectAllBtn.textContent;
+                this.originalButtonText.deselectAllBtn = this.elements.deselectAllBtn.textContent;
+            },
+
+            /**
+             * Binds event listeners to interactive DOM elements.
+             * @memberof AnkiXportApp
+             */
+            bindEvents() {
+                this.elements.processBtn.addEventListener('click', this.processText.bind(this));
+                this.elements.resetBtn.addEventListener('click', this.resetApp.bind(this));
+                this.elements.exportBtn.addEventListener('click', this.exportFlashcards.bind(this));
+                this.elements.selectAllBtn.addEventListener('click', () => this.toggleSelectAll(true));
+                this.elements.deselectAllBtn.addEventListener('click', () => this.toggleSelectAll(false));
+
+                // Clear buttons for Extra fields
+                this.elements.clearFrontExtraBtn.addEventListener('click', () => {
+                    this.elements.globalFrontExtra.innerHTML = '';
+                    this.handleInput({ target: this.elements.globalFrontExtra }); // Trigger cleanup
+                });
+                this.elements.clearBackExtraBtn.addEventListener('click', () => {
+                    this.elements.globalBackExtra.innerHTML = '';
+                    this.handleInput({ target: this.elements.globalBackExtra }); // Trigger cleanup
+                });
+
+                // Paste and input listeners for contenteditable fields
+                [this.elements.globalFrontExtra, this.elements.globalBackExtra].forEach(field => {
+                    // NOTE: Using the 'paste' event with navigator.clipboard.read() for modern access,
+                    // and then using the deprecated execCommand('insertHTML') for insertion as requested.
+                    field.addEventListener('paste', this.handlePaste.bind(this));
+                    field.addEventListener('input', this.handleInput.bind(this));
+                });
+
+                // Listen for changes on flashcard checkboxes (using event delegation)
+                this.elements.flashcardsList.addEventListener('change', this.handleFlashcardCheckboxChange.bind(this));
+            },
+
+            /**
+             * Initializes the application.
+             * @memberof AnkiXportApp
+             */
+            init() {
+                this.cacheElements();
+                this.bindEvents();
+                console.info("AnkiXportApp initialized.");
+                if (!document.queryCommandSupported || !document.queryCommandSupported('insertHTML')) {
+                    // Fully translated warning message
+                    this.showMessage("Warning: The 'insertHTML' command might not be fully supported by this browser.", 'info', 8000);
+                }
+            },
+
+            // --- UI & Feedback ---
+
+            /**
+             * Displays a notification toast message.
+             * @memberof AnkiXportApp
+             * @param {string} text - The message text (now expected to be English).
+             * @param {'success' | 'error' | 'info'} [type='error'] - Message type (controls styling).
+             * @param {number} [duration=5000] - Duration in ms before auto-closing (0 for permanent).
+             */
+            showMessage(text, type = 'error', duration = 5000) {
+                if (!text || !this.elements.notificationArea) return;
+
+                const toast = document.createElement('div');
+                toast.className = `notification-toast ${type}`;
+
+                const messageSpan = document.createElement('span');
+                messageSpan.textContent = text; // Displays the English text passed to it
+
+                const closeButton = document.createElement('button');
+                closeButton.innerHTML = '&times;';
+                closeButton.className = 'notification-toast-close';
+                // Fully translated aria-label
+                closeButton.setAttribute('aria-label', 'Close notification');
+                closeButton.onclick = () => {
+                    toast.classList.remove('show');
+                    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 550); // Remove after animation
+                };
+
+                toast.appendChild(messageSpan);
+                toast.appendChild(closeButton);
+                this.elements.notificationArea.appendChild(toast);
+
+                // Trigger reflow to enable entry animation
+                void toast.offsetWidth;
+                toast.classList.add('show');
+
+                // Auto-close timer
+                if (duration > 0) {
+                    setTimeout(() => {
+                        // Check if toast still exists before trying to close
+                        if (toast.parentElement) { closeButton.click(); }
+                    }, duration);
+                }
+            },
+
+            /**
+             * Resets the application UI and state to initial conditions.
+             * @memberof AnkiXportApp
+             */
+            resetApp() {
+                // Clear inputs and outputs
+                this.elements.aiResponseTextarea.value = '';
+                this.elements.explanationContent.innerHTML = '';
+                this.elements.modificationsContent.innerHTML = '';
+                this.elements.flashcardsList.innerHTML = '';
+                this.elements.flashcardCounterElement.textContent = '';
+                this.elements.globalFrontExtra.innerHTML = '';
+                this.elements.globalBackExtra.innerHTML = '';
+
+                // Hide result sections
+                this.elements.explanationSection.classList.add('hidden');
+                this.elements.modificationsSection.classList.add('hidden');
+                this.elements.flashcardsSection.classList.add('hidden');
+                this.elements.exportSection.classList.add('hidden');
+
+                // Remove visual separation below input section
+                this.elements.inputSection.classList.remove(
+                    'pb-8', 'md:pb-12', 'border-b', 'border-gray-200', 'dark:border-gray-700'
+                );
+
+                // Reset internal state
+                this.flashcardsData = [];
+                this.setButtonLoading('processBtn', false);
+                this.setButtonLoading('exportBtn', false);
+                this.setButtonLoading('selectAllBtn', false);
+                this.setButtonLoading('deselectAllBtn', false);
+                this.elements.selectAllBtn.disabled = true; // Ensure disabled initially
+                this.elements.deselectAllBtn.disabled = true; // Ensure disabled initially
+
+                // Fully translated reset message
+                this.showMessage('Application reset.', 'info', 3000);
+            },
+
+            /**
+             * Sets the loading state for a specified button.
+             * @memberof AnkiXportApp
+             * @param {'processBtn' | 'exportBtn' | 'selectAllBtn' | 'deselectAllBtn'} buttonIdKey - Key for elements and originalButtonText.
+             * @param {boolean} isLoading - True to set loading state, false to restore.
+             */
+            setButtonLoading(buttonIdKey, isLoading) {
+                const button = this.elements[buttonIdKey];
+                const originalText = this.originalButtonText[buttonIdKey];
+                if (!button || !originalText) return;
+
+                button.disabled = isLoading;
+
+                let loadingText = '...'; // Default short loading indicator
+                // Fully translated loading texts
+                if (buttonIdKey === 'processBtn') loadingText = 'Processing...';
+                else if (buttonIdKey === 'exportBtn') loadingText = 'Exporting...';
+                // Keep select/deselect buttons without specific loading text, just disable them
+
+                button.textContent = isLoading ? loadingText : originalText;
+            },
+
+            // --- Flashcard Rendering & Handling ---
+
+            /**
+             * Renders the list of flashcards based on `flashcardsData`.
+             * @memberof AnkiXportApp
+             */
+            renderFlashcards() {
+                const listElement = this.elements.flashcardsList;
+                listElement.innerHTML = ''; // Clear previous list
+                const fragment = document.createDocumentFragment(); // Use fragment for performance
+                let exportedCount = 0;
+                let totalValidCount = 0;
+                let totalSelectedCount = 0;
+                const totalProcessedCount = this.flashcardsData.length;
+
+                this.flashcardsData.forEach((card) => {
+                    if (card.isValid) totalValidCount++;
+                    if (card.exported) exportedCount++;
+                    if (card.selected && card.isValid) totalSelectedCount++;
+
+                    // Create card elements
+                    const cardElement = document.createElement('div');
+                    cardElement.className = 'flashcard-item';
+                    cardElement.id = card.id;
+
+                    // Apply conditional styling (invalid, exported, default)
+                    if (!card.isValid) { cardElement.classList.add('border-red-400', 'dark:border-red-600', 'bg-red-50', 'dark:bg-red-900/30', 'opacity-75'); }
+                    else if (card.exported) { cardElement.classList.add('bg-sky-50', 'dark:bg-sky-900/50', 'border-sky-200', 'dark:border-sky-700'); }
+                    else { cardElement.classList.add('bg-white', 'dark:bg-gray-800', 'border-gray-200', 'dark:border-gray-700'); }
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox'; checkbox.id = `check-${card.id}`;
+                    checkbox.className = `flashcard-checkbox rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 transition`;
+                    checkbox.checked = card.selected; checkbox.disabled = !card.isValid;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = `check-${card.id}`; label.className = 'flashcard-content-wrapper';
+
+                    const textContainer = document.createElement('div');
+                    textContainer.className = `flashcard-text-container`;
+                    if (!card.isValid) { textContainer.classList.add('bg-red-100', 'dark:bg-red-800/50', 'border-red-200', 'dark:border-red-700', 'text-red-900', 'dark:text-red-200'); }
+                    else if (card.exported) { textContainer.classList.add('bg-sky-100', 'dark:bg-sky-800/50', 'border-sky-200', 'dark:border-sky-700', 'text-sky-900', 'dark:text-sky-200'); }
+                    else { textContainer.classList.add('bg-gray-100', 'dark:bg-gray-700', 'border-gray-200', 'dark:border-gray-600', 'text-gray-800', 'dark:text-gray-100'); }
+
+                    // Parse Q/A using the parsing function
+                    const { questionHtml, answerHtml, parseError } = this.parseFlashcardHtml(card.originalText);
+
+                    // Create and populate Question/Answer divs (using English labels)
+                    const questionDiv = document.createElement('div');
+                    questionDiv.className = 'flashcard-question'; questionDiv.innerHTML = `<strong>Question:</strong> `;
+                    const questionSpan = document.createElement('span'); questionSpan.innerHTML = questionHtml;
+                    questionDiv.appendChild(questionSpan);
+
+                    const answerDiv = document.createElement('div');
+                    answerDiv.className = 'flashcard-answer mt-1'; answerDiv.innerHTML = `<strong>Answer:</strong> `;
+                    const answerCode = document.createElement('code'); answerCode.innerHTML = answerHtml;
+                    answerDiv.appendChild(answerCode);
+
+                    textContainer.appendChild(questionDiv); textContainer.appendChild(answerDiv);
+
+                    // Display parse error only if it occurs (error message already translated in parseFlashcardHtml)
+                    if (parseError) {
+                        const errorMsg = document.createElement('p'); errorMsg.className = 'text-xs text-red-600 dark:text-red-400 mt-1';
+                        errorMsg.textContent = parseError;
+                        textContainer.appendChild(errorMsg);
+                    }
+
+                    // Status indicators (using English labels)
+                    const statusDiv = document.createElement('div'); statusDiv.className = 'space-x-2 mt-1';
+                    const statusLabelBaseClasses = 'inline-block text-xs font-medium p-1 px-1.5 rounded align-middle mt-[0.35rem]';
+                    if (!card.isValid) {
+                        const invalidSpan = document.createElement('span'); invalidSpan.className = `${statusLabelBaseClasses} bg-red-100 text-red-700 dark:bg-red-800/60 dark:text-red-300`;
+                        invalidSpan.textContent = 'Invalid Cloze Format'; statusDiv.appendChild(invalidSpan);
+                    }
+                    const exportedSpan = document.createElement('span');
+                    exportedSpan.className = `export-status ${statusLabelBaseClasses} ${card.exported ? 'text-sky-700 bg-sky-100 dark:text-sky-300 dark:bg-sky-800/60' : ''}`;
+                    exportedSpan.style.display = card.exported ? 'inline-block' : 'none';
+                    exportedSpan.textContent = 'Exported';
+                    statusDiv.appendChild(exportedSpan);
+
+                    // Assemble the card
+                    label.appendChild(textContainer); label.appendChild(statusDiv);
+                    cardElement.appendChild(checkbox); cardElement.appendChild(label);
+                    fragment.appendChild(cardElement);
+                });
+
+                listElement.appendChild(fragment);
+
+                // Update counter and button states (using English text)
+                this.elements.flashcardCounterElement.textContent = `(Found: ${totalProcessedCount} / Valid: ${totalValidCount} / Exported: ${exportedCount})`;
+                this.originalButtonText.selectAllBtn = totalValidCount > 0 ? 'Select Valid' : 'None Valid';
+                this.elements.selectAllBtn.textContent = this.originalButtonText.selectAllBtn;
+                this.elements.deselectAllBtn.textContent = this.originalButtonText.deselectAllBtn; // Uses original English text from cache
+
+                this.elements.selectAllBtn.disabled = totalValidCount === 0;
+                this.elements.deselectAllBtn.disabled = totalSelectedCount === 0;
+            },
+
+            /**
+             * Handles changes to individual flashcard checkboxes. Updates state and button states.
+             * @memberof AnkiXportApp
+             * @param {Event} event - The change event object.
+             */
+            handleFlashcardCheckboxChange(event) {
+                if (event.target.type === 'checkbox' && event.target.classList.contains('flashcard-checkbox')) {
+                    const cardId = event.target.id.replace('check-', '');
+                    const cardDataIndex = this.flashcardsData.findIndex(fc => fc.id === cardId);
+                    let totalSelectedCount = 0;
+                    if (cardDataIndex !== -1) {
+                        // Only update selection if the card is valid
+                        if (this.flashcardsData[cardDataIndex].isValid) {
+                            this.flashcardsData[cardDataIndex].selected = event.target.checked;
+                        } else {
+                            event.target.checked = false; // Prevent checking invalid card
+                        }
+                        // Recalculate selected count
+                         totalSelectedCount = this.flashcardsData.filter(fc => fc.selected && fc.isValid).length;
+                    }
+                     this.elements.deselectAllBtn.disabled = totalSelectedCount === 0;
+                }
+            },
+
+            /**
+             * Selects or deselects all *valid* flashcards.
+             * @memberof AnkiXportApp
+             * @param {boolean} select - True to select all valid, false to deselect all.
+             */
+            toggleSelectAll(select) {
+                let changed = false;
+                this.flashcardsData.forEach(card => {
+                    // Only change selection state for valid cards
+                    if (card.isValid) {
+                        if (select && !card.selected) { card.selected = true; changed = true; }
+                        else if (!select && card.selected) { card.selected = false; changed = true; }
+                    } else {
+                        // Ensure invalid cards are always deselected
+                        if (card.selected) { card.selected = false; changed = true;}
+                    }
+                });
+                if (changed) { this.renderFlashcards(); } // Re-render if changes occurred
+            },
+
+            // --- Core Logic ---
+
+            /**
+             * Processes the JSON input: validates, parses, extracts data, updates UI.
+             * @memberof AnkiXportApp
+             */
+            processText() {
+                this.setButtonLoading('processBtn', true);
+                // Reset relevant UI parts and state before processing
+                this.elements.explanationContent.innerHTML = ''; this.elements.modificationsContent.innerHTML = '';
+                this.elements.flashcardsList.innerHTML = ''; this.elements.flashcardCounterElement.textContent = '';
+                this.elements.explanationSection.classList.add('hidden'); this.elements.modificationsSection.classList.add('hidden');
+                this.elements.flashcardsSection.classList.add('hidden'); this.elements.exportSection.classList.add('hidden');
+                this.elements.inputSection.classList.remove('pb-8', 'md:pb-12', 'border-b', 'border-gray-200', 'dark:border-gray-700');
+                this.flashcardsData = [];
+
+                try {
+                    const jsonInput = this.elements.aiResponseTextarea.value;
+                    if (!jsonInput || jsonInput.trim() === '') {
+                        // Fully translated error message
+                        this.showMessage('JSON input field is empty.', 'error');
+                        return;
+                    }
+
+                    let parsedData;
+                    try { parsedData = JSON.parse(jsonInput); }
+                    catch (error) {
+                        // Fully translated error message
+                        this.showMessage(`Error parsing JSON: ${error.message}.`, 'error'); return;
+                    }
+
+                    // Validate expected JSON structure - using the original keys as defined by the AI output format
+                    if (typeof parsedData !== 'object' || parsedData === null || typeof parsedData.explanation !== 'string' ||
+                        !Array.isArray(parsedData.modifications) || !Array.isArray(parsedData.flashcards)) {
+                        // Fully translated error message (keeping original keys for clarity)
+                        this.showMessage('JSON does not have the expected structure (missing keys or incorrect types: explanation, modifications, flashcards).', 'error');
+                        return;
+                    }
+
+                    let sectionsBelowInputVisible = false;
+
+                    // Display Explanation (key: explanation)
+                    if (parsedData.explanation && parsedData.explanation.trim() !== '') {
+                        try {
+                            this.elements.explanationContent.innerHTML = parsedData.explanation;
+                            this.elements.explanationSection.classList.remove('hidden'); sectionsBelowInputVisible = true;
+                        } catch (error) {
+                             // Fully translated error message
+                             this.showMessage(`Error displaying explanation HTML: ${error.message}`, 'error');
+                             // Fully translated fallback text
+                             this.elements.explanationContent.textContent = `HTML Display Error:\n${parsedData.explanation}`;
+                             this.elements.explanationSection.classList.remove('hidden'); sectionsBelowInputVisible = true;
+                        }
+                    } else { this.elements.explanationSection.classList.add('hidden'); }
+
+                    // Display Modifications (key: modifications)
+                    const validModifications = parsedData.modifications.filter(mod => typeof mod === 'string' && mod.trim() !== '');
+                    if (validModifications.length > 0) {
+                         try {
+                             this.elements.modificationsContent.innerHTML = '<ul>' + validModifications.map(mod => `<li>${mod}</li>`).join('\n') + '</ul>';
+                             this.elements.modificationsSection.classList.remove('hidden'); sectionsBelowInputVisible = true;
+                         } catch (error) {
+                              // Fully translated error message
+                              this.showMessage(`Error displaying modifications HTML: ${error.message}`, 'error');
+                              // Fully translated fallback text
+                              this.elements.modificationsContent.textContent = `HTML Display Error:\n${validModifications.join('\n')}`;
+                              this.elements.modificationsSection.classList.remove('hidden'); sectionsBelowInputVisible = true;
+                         }
+                    } else { this.elements.modificationsSection.classList.add('hidden'); }
+
+                    // Process Flashcards (key: flashcards)
+                    this.flashcardsData = parsedData.flashcards
+                        .map(line => typeof line === 'string' ? line.trim() : '') // Trim and ensure string
+                        .filter(trimmedLine => trimmedLine !== '') // Filter empty lines
+                        .map((trimmedLine, index) => ({ // Create flashcard data object
+                            id: `fc-${index + 1}`, originalText: trimmedLine,
+                            selected: false, // Default to not selected
+                            isValid: /\{\{c\d*::.*?\}\}/is.test(trimmedLine), // Check cloze format
+                            exported: false
+                        }));
+
+                    // Render Flashcards if any exist
+                    if (this.flashcardsData.length > 0) {
+                        this.renderFlashcards();
+                        this.elements.flashcardsSection.classList.remove('hidden'); this.elements.exportSection.classList.remove('hidden');
+                        sectionsBelowInputVisible = true;
+                    } else {
+                        this.elements.flashcardsSection.classList.add('hidden'); this.elements.exportSection.classList.add('hidden');
+                        if (!sectionsBelowInputVisible) {
+                            // Fully translated message
+                            this.showMessage('No data (explanation, modifications, flashcards) found in the JSON.', 'info');
+                        }
+                    }
+
+                    // Add visual divider if sections below input are visible
+                    if (sectionsBelowInputVisible) {
+                        this.elements.inputSection.classList.add('pb-8', 'md:pb-12', 'border-b', 'border-gray-200', 'dark:border-gray-700');
+                    }
+
+                } catch (error) {
+                    // Fully translated error message
+                    this.showMessage(`Unexpected error during processing: ${error.message}`, 'error');
+                    console.error("Processing Error:", error);
+                 }
+                finally { this.setButtonLoading('processBtn', false); }
+            },
+
+            /**
+             * Exports selected, valid flashcards to a TSV file for Anki import.
+             * @memberof AnkiXportApp
+             */
+            exportFlashcards() {
+                const cardsToExport = this.flashcardsData.filter(card => card.selected && card.isValid);
+                if (cardsToExport.length === 0) {
+                     // Fully translated message
+                     this.showMessage("No valid flashcards selected for export.", 'info'); return;
+                }
+
+                this.setButtonLoading('exportBtn', true);
+                try {
+                    // Get content from extra fields
+                    const frontExtraHtml = this.elements.globalFrontExtra.innerHTML;
+                    const backExtraHtml = this.elements.globalBackExtra.innerHTML;
+
+                    // Prepare TSV data rows
+                    const tsvDataRows = cardsToExport.map(card => {
+                        const text = this.escapeTsvField(card.originalText);
+                        const front = this.escapeTsvField(frontExtraHtml);
+                        const back = this.escapeTsvField(backExtraHtml);
+                        return `${text}\t${front}\t${back}`; // Tab-separated
+                    }).join('\n'); // Newline-separated
+
+                    // Anki import headers
+                    // NOTE: Hardcoded Note Type Name - ensure this matches your Anki setup
+                    const noteTypeName = "#FILCARD";
+                    const ankiHeaders = `#notetype:${noteTypeName}\n#separator:tab\n#html:true\n#columns:Text\tFront Extra\tBack Extra`; // Keep field names as expected by Anki
+                    const fullTsvContent = `${ankiHeaders}\n${tsvDataRows}`;
+
+                    // Create Blob and trigger download
+                    const blob = new Blob([fullTsvContent], { type: 'text/tab-separated-values;charset=utf-8' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `AnkiXport_flashcards_${new Date().toISOString().replace(/[:.]/g, '-')}.tsv`;
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href);
+
+                    // Update UI: Mark cards as exported and deselect them
+                    cardsToExport.forEach(exportedCard => {
+                        const originalCard = this.flashcardsData.find(card => card.id === exportedCard.id);
+                        if (originalCard) { originalCard.exported = true; originalCard.selected = false; } });
+                    this.renderFlashcards();
+
+                    // Fully translated success message
+                    this.showMessage(`${cardsToExport.length} flashcard${cardsToExport.length > 1 ? 's' : ''} exported successfully!`, 'success');
+
+                } catch (error) {
+                     // Fully translated error message
+                     this.showMessage(`Export error: ${error.message}`, 'error');
+                     console.error("Export Error:", error);
+                }
+                finally { this.setButtonLoading('exportBtn', false); }
+            },
+
+            // --- Utility Functions ---
+
+            /**
+             * Escapes a value for safe inclusion in a TSV field.
+             * Handles tabs, newlines (converted to <br>), and quotes according to common TSV practices.
+             * @memberof AnkiXportApp
+             * @param {*} value - The value to escape.
+             * @returns {string} The escaped TSV field value.
+             */
+            escapeTsvField(value) {
+                if (value === null || value === undefined) return '';
+                // Convert actual newline characters to <br> tags for Anki HTML interpretation
+                let strValue = String(value).replace(/\n/g, '<br>');
+                // If the string contains a tab, a double quote, or a <br> tag, enclose it in double quotes.
+                // Also, double any existing double quotes within the string.
+                if (strValue.includes('\t') || strValue.includes('"') || strValue.includes('<br>')) {
+                    return `"${strValue.replace(/"/g, '""')}"`;
+                }
+                return strValue; // Return as is if no special characters are found
+            },
+
+            /**
+             * Parses Anki cloze text to extract question/answer parts suitable for display.
+             * Assumes input format "Something {{c(number)::Answer}} SomethingElse" is present if isValid is true.
+             * The question part now omits the cloze placeholder "[...]".
+             * @memberof AnkiXportApp
+             * @param {string} flashcardText - The flashcard text containing a cloze deletion.
+             * @returns {{questionHtml: string, answerHtml: string, parseError: string|null}} Object containing parsed parts.
+             */
+            parseFlashcardHtml(flashcardText) {
+                // Regex to capture content before, inside, and after the *first* cloze {{c(digits)::content}}
+                const match = flashcardText.match(/^(.*?)\{\{c\d*::(.*?)\}\}(.*?)$/is);
+
+                if (!match) {
+                    console.warn("Parse Warning: Cloze format not found in supposedly valid input:", flashcardText);
+                    // Fully translated error details
+                    return {
+                        questionHtml: `[Unexpected Format] ${flashcardText}`,
+                        answerHtml: '',
+                        parseError: 'Expected Cloze format {{c1::...}} not found.'
+                    };
+                }
+
+                // Extract parts. Allow HTML within parts.
+                const part1 = match[1] || '';
+                const answer = match[2] || ''; // This IS the cloze answer content
+                const part3 = match[3] || '';
+
+                // Construct question HTML: Show content before and after the cloze, omitting the cloze part itself.
+                let question = '';
+                const trimmedPart1 = part1.trim(); // Trim whitespace from parts
+                const trimmedPart3 = part3.trim();
+
+                if (trimmedPart1 && trimmedPart3) {
+                    question = `${trimmedPart1} ${trimmedPart3}`;
+                } else if (trimmedPart1) {
+                    question = trimmedPart1;
+                } else if (trimmedPart3) {
+                    question = trimmedPart3;
+                } else {
+                    question = '';
+                }
+
+                // Return the questionHtml (already trimmed parts or empty) and the trimmed answerHtml
+                return { questionHtml: question, answerHtml: answer.trim(), parseError: null };
+            },
+
+             /**
+              * Optimizes an image Blob (resizing, compressing) and converts it to a Base64 data URL.
+              * @memberof AnkiXportApp
+              * @param {Blob} blob - The image blob to process.
+              * @returns {Promise<string>} Promise resolving with the optimized Base64 data URL.
+              */
+             optimizeAndConvertToBase64(blob) {
+                 return new Promise((resolve, reject) => {
+                     const image = new Image();
+                     const objectUrl = URL.createObjectURL(blob);
+                     image.src = objectUrl;
+
+                     image.onload = () => {
+                         try {
+                             const canvas = document.createElement('canvas');
+                             const ctx = canvas.getContext('2d');
+                             if (!ctx) {
+                                 // Fully translated error
+                                 throw new Error("Could not get 2D context from canvas.");
+                             }
+                             // ... (rest of optimization logic is unchanged) ...
+                             const { maxWidth, maxHeight, quality } = this.imageOptimization;
+                             let { outputFormat } = this.imageOptimization;
+                             let newWidth = image.naturalWidth;
+                             let newHeight = image.naturalHeight;
+                             const aspectRatio = newWidth / newHeight;
+                             if (newWidth > maxWidth) { newWidth = maxWidth; newHeight = newWidth / aspectRatio; }
+                             if (newHeight > maxHeight) { newHeight = maxHeight; newWidth = newHeight * aspectRatio; }
+                             canvas.width = Math.round(newWidth); canvas.height = Math.round(newHeight);
+                             ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                             const originalType = blob.type.toLowerCase();
+                             if (['image/jpeg', 'image/png', 'image/webp'].includes(originalType)) { outputFormat = originalType; }
+                             else { console.warn(`Original image type "${blob.type}" not directly supported for canvas export, using configured default: ${outputFormat}`); }
+                             const exportQuality = (outputFormat === 'image/jpeg' || outputFormat === 'image/webp') ? quality : undefined;
+                             const base64String = canvas.toDataURL(outputFormat, exportQuality);
+                             resolve(base64String);
+                         } catch (error) {
+                             console.error("Error during image optimization:", error);
+                             // Fully translated error
+                             reject(new Error(`Image optimization failed: ${error.message}`));
+                         } finally {
+                             URL.revokeObjectURL(objectUrl);
+                         }
+                     };
+                     image.onerror = (errorEvent) => {
+                         URL.revokeObjectURL(objectUrl);
+                         console.error("Error loading image for optimization:", errorEvent);
+                         // Fully translated error
+                         reject(new Error("Could not load image for optimization."));
+                     };
+                 });
+             },
+
+             /**
+              * Cleans up contenteditable field if it becomes empty or contains only <br>.
+              * @memberof AnkiXportApp
+              * @param {Event} event - The input event object.
+              */
+             handleInput(event) {
+                 const target = event.target;
+                 if (!target || !target.isContentEditable) return;
+                 const isEffectivelyEmpty = target.textContent.trim() === '' && !target.querySelector(':not(br)');
+                 const containsOnlyBr = target.innerHTML.trim().toLowerCase().replace(/<br\s*\/?>/g, '') === '';
+                 if ((isEffectivelyEmpty || containsOnlyBr) && target.innerHTML !== '') {
+                     target.innerHTML = '';
+                 }
+             },
+
+
+            /**
+             * Handles paste events in contenteditable fields.
+             * @memberof AnkiXportApp
+             * @param {ClipboardEvent} event - The paste event object.
+             */
+            async handlePaste(event) {
+                event.preventDefault();
+                const targetElement = event.target;
+                if (!targetElement || !targetElement.isContentEditable) return;
+
+                if (!navigator.clipboard || !navigator.clipboard.read) {
+                    // Fully translated message
+                    this.showMessage("Clipboard API not supported/available (requires HTTPS or localhost). Cannot paste rich content/images.", "error", 8000);
+                    return;
+                }
+
+                targetElement.focus();
+
+                try {
+                    const clipboardItems = await navigator.clipboard.read();
+                    if (!clipboardItems || clipboardItems.length === 0) { return; }
+
+                    let contentToInsert = null;
+
+                    for (const item of clipboardItems) {
+                        // --- 1. Image ---
+                        const imageType = item.types.find(type => type.startsWith('image/'));
+                        if (imageType) {
+                            try {
+                                const blob = await item.getType(imageType);
+                                const base64 = await this.optimizeAndConvertToBase64(blob);
+                                if (!base64 || !base64.startsWith('data:image/')) {
+                                    // Fully translated error
+                                    throw new Error("Image optimization did not return valid data.");
+                                }
+                                // Fully translated alt text
+                                contentToInsert = `<img src="${base64}" alt="Pasted Image">`;
+                                break;
+                            } catch (imgErr) {
+                                console.error("Error processing/optimizing/inserting image:", imgErr);
+                                // Fully translated error
+                                this.showMessage(`Error inserting image: ${imgErr.message}`, "error");
+                                contentToInsert = null;
+                                break;
+                            }
+                        }
+                        // --- 2. HTML ---
+                        if (contentToInsert === null && item.types.includes('text/html')) {
+                            try {
+                                const blob = await item.getType('text/html');
+                                const htmlContent = await blob.text();
+                                if (htmlContent && htmlContent.trim() !== '') { contentToInsert = htmlContent; /* break; */ }
+                            } catch (htmlErr) { console.warn("Could not read HTML from clipboard:", htmlErr); }
+                        }
+                        // --- 3. Plain Text ---
+                        if (contentToInsert === null && item.types.includes('text/plain')) {
+                           try {
+                                const blob = await item.getType('text/plain');
+                                const textContent = await blob.text();
+                                if (textContent && textContent.trim() !== '') { contentToInsert = textContent.replace(/\n/g, '<br>'); break; }
+                            } catch (textErr) { console.warn("Could not read plain text from clipboard:", textErr); }
+                        }
+                        if (contentToInsert !== null) { break; }
+                    }
+
+                    // --- Insert ---
+                    if (contentToInsert !== null) {
+                        if (!document.execCommand('insertHTML', false, contentToInsert)) {
+                            // Fully translated error
+                            throw new Error("'insertHTML' command failed. Content might not have been inserted correctly.");
+                        }
+                    }
+
+                } catch (err) {
+                    console.error("Error reading or processing clipboard content:", err);
+                    // Fully translated errors
+                    if (err.name === 'NotAllowedError') {
+                        this.showMessage("Clipboard access permission denied. Please allow access.", "error", 8000);
+                    } else if (err.message.includes("requires user activation")) {
+                         this.showMessage("Clipboard access requires user activation first (like a click).", "error", 8000);
+                    }
+                    else {
+                        this.showMessage(`Clipboard error: ${err.message}`, "error");
+                    }
+                } finally {
+                     targetElement.focus();
+                     targetElement.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+                }
+            }, // End handlePaste
+
+        }; // End AnkiXportApp object
+
+        // Initialize the application once the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            AnkiXportApp.init();
+        });
+    </script>
