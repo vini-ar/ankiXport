@@ -258,49 +258,9 @@
         // == LISTA DE ARQUIVOS (GERENCIADA POR SCRIPT) ====================
         // =================================================================
         const PRESET_JSON_FILES = [ // START-LIST
-            { name: "Bazo_Parte_2_Preparados_histologicos", path: "json_files/Bazo_Parte_2_Preparados_histologicos.txt" },
-            { name: "clasificacion_de_organos_linfoides_ganglio_linfatico_parte_1", path: "json_files/clasificacion_de_organos_linfoides_ganglio_linfatico_parte_1.txt" },
-            { name: "cpa_clasificacion_del_tejido_linfatico", path: "json_files/cpa_clasificacion_del_tejido_linfatico.txt" },
-            { name: "ganglio_linfatico_parte_2_timo_parte_1", path: "json_files/ganglio_linfatico_parte_2_timo_parte_1.txt" },
-            { name: "generalidades_de_tejido_muscular_tejido_muscular_estriado_esqueleticovisceral_parte_1", path: "json_files/generalidades_de_tejido_muscular_tejido_muscular_estriado_esqueleticovisceral_parte_1.txt" },
-            { name: "microscopio", path: "json_files/microscopio.txt" },
-            { name: "microscopio_tej_cartilaginoso_y_oseo_parte_2", path: "json_files/microscopio_tej_cartilaginoso_y_oseo_parte_2.txt" },
-            { name: "otras_tecnicas_y_tinciones", path: "json_files/otras_tecnicas_y_tinciones.txt" },
-            { name: "preparados_histologicos_organos_linfaticos_parte_2", path: "json_files/preparados_histologicos_organos_linfaticos_parte_2.txt" },
-            { name: "sistema_linfatico_parte_1_generalidades", path: "json_files/sistema_linfatico_parte_1_generalidades.txt" },
-            { name: "sistema_linfatico_parte_2", path: "json_files/sistema_linfatico_parte_2.txt" },
-            { name: "sistema_nervioso_parte_1", path: "json_files/sistema_nervioso_parte_1.txt" },
-            { name: "sistema_nervioso_parte_2", path: "json_files/sistema_nervioso_parte_2.txt" },
-            { name: "sistema_nervioso_parte_3", path: "json_files/sistema_nervioso_parte_3.txt" },
-            { name: "tecnica_histologica_1", path: "json_files/tecnica_histologica_1.txt" },
-            { name: "tecnica_histologica_2", path: "json_files/tecnica_histologica_2.txt" },
-            { name: "tecnica_histologica_y_microscopio_parte_1", path: "json_files/tecnica_histologica_y_microscopio_parte_1.txt" },
-            { name: "tecnica_histologica_y_microscopio_parte_2", path: "json_files/tecnica_histologica_y_microscopio_parte_2.txt" },
-            { name: "tecnica_histologica_y_microscopio_parte_3", path: "json_files/tecnica_histologica_y_microscopio_parte_3.txt" },
-            { name: "tejido_cartilaginoso_parte_1", path: "json_files/tejido_cartilaginoso_parte_1.txt" },
-            { name: "tejido_cartilaginoso_parte_2", path: "json_files/tejido_cartilaginoso_parte_2.txt" },
-            { name: "tejido_conectivo_1", path: "json_files/tejido_conectivo_1.txt" },
-            { name: "tejido_conectivo_2", path: "json_files/tejido_conectivo_2.txt" },
-            { name: "tejido_conectivo_3", path: "json_files/tejido_conectivo_3.txt" },
-            { name: "tejido_conectivo_4", path: "json_files/tejido_conectivo_4.txt" },
-            { name: "tejido_epitelial_de_revestimiento_parte_1", path: "json_files/tejido_epitelial_de_revestimiento_parte_1.txt" },
-            { name: "tejido_epitelial_de_revestimiento_parte_2", path: "json_files/tejido_epitelial_de_revestimiento_parte_2.txt" },
-            { name: "tejido_epitelial_generalidades_parte_1", path: "json_files/tejido_epitelial_generalidades_parte_1.txt" },
-            { name: "tejido_epitelial_generalidades_parte_2", path: "json_files/tejido_epitelial_generalidades_parte_2.txt" },
-            { name: "tejido_linfatico_linfocitos", path: "json_files/tejido_linfatico_linfocitos.txt" },
-            { name: "tejido_muscular_estrado_esqueletico_y_visceral_parte_2", path: "json_files/tejido_muscular_estrado_esqueletico_y_visceral_parte_2.txt" },
-            { name: "tejido_muscular_estrado_esqueletico_y_visceral_parte_3", path: "json_files/tejido_muscular_estrado_esqueletico_y_visceral_parte_3.txt" },
-            { name: "tejido_muscular_estriado_cardiaco", path: "json_files/tejido_muscular_estriado_cardiaco.txt" },
-            { name: "tejido_muscular_liso", path: "json_files/tejido_muscular_liso.txt" },
-            { name: "tejido_nervioso_parte_4", path: "json_files/tejido_nervioso_parte_4.txt" },
-            { name: "tejido_oseo_1", path: "json_files/tejido_oseo_1.txt" },
-            { name: "tejido_oseo_2", path: "json_files/tejido_oseo_2.txt" },
-            { name: "tejido_oseo_3", path: "json_files/tejido_oseo_3.txt" },
-            { name: "tejido_y_sistema_nervioso_parte_1", path: "json_files/tejido_y_sistema_nervioso_parte_1.txt" },
-            { name: "tejido_y_sistema_nervioso_parte_2", path: "json_files/tejido_y_sistema_nervioso_parte_2.txt" },
-            { name: "tejido_y_sistema_nervioso_parte_3", path: "json_files/tejido_y_sistema_nervioso_parte_3.txt" },
-            { name: "timo_parte_2_bazo_parte_1", path: "json_files/timo_parte_2_bazo_parte_1.txt" }
-        // END-LIST ];
+
+        // END-LIST
+];
         // =================================================================
         // == FIM DA LISTA DE ARQUIVOS =====================================
         // =================================================================
@@ -438,17 +398,59 @@
                 try {
                     const selectEl = this.elements.jsonPresetSelect;
                     if (!selectEl || typeof PRESET_JSON_FILES === 'undefined' || PRESET_JSON_FILES.length === 0) {
-                        if (selectEl) selectEl.parentElement.classList.add('hidden'); // Esconde o dropdown se não houver dados
+                        if (selectEl) selectEl.parentElement.classList.add('hidden');
                         return;
                     }
 
                     const fragment = document.createDocumentFragment();
+
+                    // 1. Agrupa os arquivos pela estrutura
+                    const materias = {};
                     PRESET_JSON_FILES.forEach(file => {
-                        const option = document.createElement('option');
-                        option.value = file.path; // O valor é o CAMINHO
-                        option.textContent = file.name; // Ex: "Biologia - TP 13"
-                        fragment.appendChild(option);
+                        if (!file.materia) file.materia = "Outros";
+                        if (!file.topico) file.topico = "Geral";
+
+                        if (!materias[file.materia]) {
+                            materias[file.materia] = {};
+                        }
+                        if (!materias[file.materia][file.topico]) {
+                            materias[file.materia][file.topico] = [];
+                        }
+                        materias[file.materia][file.topico].push(file);
                     });
+
+                    // 2. Ordena e cria os <optgroup> para cada Matéria
+                    const materiaNomes = Object.keys(materias).sort();
+                    
+                    materiaNomes.forEach(materiaNome => {
+                        const materiaGroup = document.createElement('optgroup');
+                        materiaGroup.label = materiaNome; // Ex: "Histologia"
+                        
+                        // 3. Ordena e cria os <optgroup> para cada Tópico
+                        const topicoNomes = Object.keys(materias[materiaNome]).sort();
+                        
+                        topicoNomes.forEach(topicoNome => {
+                            // Cria um grupo "aninhado" (o navegador exibe isso bem)
+                            // Usamos caracteres especiais para simular a árvore
+                            const topicoGroup = document.createElement('optgroup');
+                            topicoGroup.label = `  ↳ ${topicoNome}`; // Ex: "  ↳ TP 1"
+                            
+                            // 4. Adiciona os arquivos (<option>) dentro do Tópico
+                            materias[materiaNome][topicoNome].forEach(file => {
+                                const option = document.createElement('option');
+                                option.value = file.path;
+                                // Adiciona mais recuo ao nome do arquivo
+                                option.textContent = `    • ${file.name}`; // Ex: "    • aula_1"
+                                topicoGroup.appendChild(option);
+                            });
+                            
+                            // Adiciona o grupo do Tópico ao grupo da Matéria
+                            materiaGroup.appendChild(topicoGroup);
+                        });
+                        
+                        fragment.appendChild(materiaGroup);
+                    });
+
                     selectEl.appendChild(fragment);
 
                 } catch (error) {
@@ -456,13 +458,6 @@
                     if (this.elements.jsonPresetSelect) this.elements.jsonPresetSelect.parentElement.classList.add('hidden');
                 }
             },
-
-            /**
-             * Lida com a mudança de seleção no dropdown de JSONs predefinidos.
-             * Carrega o arquivo JSON/TXT selecionado usando fetch() e o processa.
-             * @memberof AnkiXportApp
-             * @param {Event} event - O evento de mudança do select.
-             */
             async handlePresetSelect(event) {
                 const selectedPath = event.target.value;
                 const textarea = this.elements.aiResponseTextarea;
