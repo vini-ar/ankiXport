@@ -254,22 +254,57 @@
         // Liste os arquivos que estão na sua pasta /json_files/
         // - 'name': O nome que aparecerá no dropdown (ex: "Biologia - Aula 1").
         // - 'path': O caminho para o arquivo, relativo ao 'index.html'.
-
-        const PRESET_JSON_FILES = [
-            {
-                name: 'Biologia - TP 13 (Exemplo)',
-                path: 'json_files/biologia_tp13.txt'
-            },
-            {
-                name: 'Histologia - Aula 5 (Exemplo)',
-                path: 'json_files/histologia_aula5.txt'
-            },
-            // Adicione quantos arquivos quiser
-            // {
-            //     name: 'Nome do Seu Novo Arquivo',
-            //     path: 'json_files/outro_arquivo.txt'
-            // },
-        ];
+// =================================================================
+        // == LISTA DE ARQUIVOS (GERENCIADA POR SCRIPT) ====================
+        // =================================================================
+        const PRESET_JSON_FILES = [ // START-LIST
+            { name: "Bazo Parte 2. Preparados histológicos", path: "json_files/Bazo Parte 2. Preparados histológicos (128kbit_AAC).txt" },
+            { name: "CPA. Clasificación del Tejido linfático", path: "json_files/CPA. Clasificación del Tejido linfático (128kbit_AAC).txt" },
+            { name: "Clasificación de órganos linfoides. Ganglio linfático Parte 1", path: "json_files/Clasificación de órganos linfoides. Ganglio linfático Parte 1 (96kbit_AAC).txt" },
+            { name: "Ganglio linfático Parte 2. Timo Parte 1", path: "json_files/Ganglio linfático Parte 2. Timo Parte 1 (128kbit_AAC).txt" },
+            { name: "Generalidades de Tejido muscular. Tejido muscular estriado esquelético⁄visceral Parte 1", path: "json_files/Generalidades de Tejido muscular. Tejido muscular estriado esquelético⁄visceral Parte 1 (128kbit_AAC).txt" },
+            { name: "Microscopio", path: "json_files/Microscopio (128kbit_AAC).txt" },
+            { name: "Microscopio tej cartilaginoso y óseo Parte 2", path: "json_files/Microscopio tej cartilaginoso y óseo Parte 2 (128kbit_AAC).txt" },
+            { name: "Otras técnicas y tinciones", path: "json_files/Otras técnicas y tinciones (128kbit_AAC).txt" },
+            { name: "Preparados histológicos órganos linfáticos Parte 2", path: "json_files/Preparados histológicos órganos linfáticos Parte 2 (128kbit_AAC).txt" },
+            { name: "Sistema Nervioso Parte 1", path: "json_files/Sistema Nervioso Parte 1 (128kbit_AAC).txt" },
+            { name: "Sistema Nervioso Parte 2", path: "json_files/Sistema Nervioso Parte 2 (128kbit_AAC).txt" },
+            { name: "Sistema Nervioso Parte 3", path: "json_files/Sistema Nervioso Parte 3 (128kbit_AAC).txt" },
+            { name: "Sistema linfático Parte 1 Generalidades", path: "json_files/Sistema linfático Parte 1 Generalidades (128kbit_AAC).txt" },
+            { name: "Sistema linfático Parte 2", path: "json_files/Sistema linfático Parte 2 (128kbit_AAC).txt" },
+            { name: "Tejido Cartilaginoso Parte 1", path: "json_files/Tejido Cartilaginoso Parte 1 (128kbit_AAC).txt" },
+            { name: "Tejido Cartilaginoso Parte 2", path: "json_files/Tejido Cartilaginoso Parte 2 (128kbit_AAC).txt" },
+            { name: "Tejido Epitelial Generalidades Parte 1", path: "json_files/Tejido Epitelial Generalidades Parte 1 (128kbit_AAC).txt" },
+            { name: "Tejido Epitelial Generalidades Parte 2", path: "json_files/Tejido Epitelial Generalidades Parte 2 (128kbit_AAC).txt" },
+            { name: "Tejido Epitelial de revestimiento Parte 1", path: "json_files/Tejido Epitelial de revestimiento Parte 1 (128kbit_AAC).txt" },
+            { name: "Tejido Epitelial de revestimiento Parte 2", path: "json_files/Tejido Epitelial de revestimiento Parte 2 (128kbit_AAC).txt" },
+            { name: "Tejido Muscular Liso", path: "json_files/Tejido Muscular Liso (128kbit_AAC).txt" },
+            { name: "Tejido Nervioso Parte 4", path: "json_files/Tejido Nervioso Parte 4 (128kbit_AAC).txt" },
+            { name: "Tejido Óseo 1", path: "json_files/Tejido Óseo 1 (128kbit_AAC).txt" },
+            { name: "Tejido conectivo 1", path: "json_files/Tejido conectivo 1 (128kbit_AAC).txt" },
+            { name: "Tejido conectivo 2", path: "json_files/Tejido conectivo 2 (96kbit_AAC).txt" },
+            { name: "Tejido conectivo 3", path: "json_files/Tejido conectivo 3 (128kbit_AAC).txt" },
+            { name: "Tejido conectivo 4", path: "json_files/Tejido conectivo 4 (128kbit_AAC).txt" },
+            { name: "Tejido linfático. Linfocitos", path: "json_files/Tejido linfático. Linfocitos (128kbit_AAC).txt" },
+            { name: "Tejido muscular estrado esquelético y visceral. Parte 2", path: "json_files/Tejido muscular estrado esquelético y visceral. Parte 2 (128kbit_AAC).txt" },
+            { name: "Tejido muscular estrado esquelético y visceral. Parte 3", path: "json_files/Tejido muscular estrado esquelético y visceral. Parte 3 (128kbit_AAC).txt" },
+            { name: "Tejido muscular estriado cardíaco", path: "json_files/Tejido muscular estriado cardíaco (128kbit_AAC).txt" },
+            { name: "Tejido óseo 2", path: "json_files/Tejido óseo 2 (128kbit_AAC).txt" },
+            { name: "Tejido óseo 3", path: "json_files/Tejido óseo 3 (128kbit_AAC).txt" },
+            { name: "Tejido y Sistema Nervioso Parte 1", path: "json_files/Tejido y Sistema Nervioso Parte 1 (128kbit_AAC).txt" },
+            { name: "Tejido y Sistema nervioso Parte 3", path: "json_files/Tejido y Sistema nervioso Parte 3 (128kbit_AAC).txt" },
+            { name: "Tejido y sistema nervioso Parte 2", path: "json_files/Tejido y sistema nervioso Parte 2 (128kbit_AAC).txt" },
+            { name: "Técnica Histológica 1", path: "json_files/Técnica Histológica 1 (128kbit_AAC).txt" },
+            { name: "Técnica Histológica 2", path: "json_files/Técnica Histológica 2 (128kbit_AAC).txt" },
+            { name: "Técnica histológica y Microscopio Parte 1", path: "json_files/Técnica histológica y Microscopio Parte 1 (128kbit_AAC).txt" },
+            { name: "Técnica histológica y Microscopio Parte 2", path: "json_files/Técnica histológica y Microscopio Parte 2 (128kbit_AAC).txt" },
+            { name: "Técnica histológica y Microscopio Parte 3", path: "json_files/Técnica histológica y Microscopio Parte 3 (128kbit_AAC).txt" },
+            { name: "Timo Parte 2. Bazo Parte 1", path: "json_files/Timo Parte 2. Bazo Parte 1 (128kbit_AAC).txt" }
+        // END-LIST ];
+        // =================================================================
+        // == FIM DA LISTA DE ARQUIVOS =====================================
+        // =================================================================
+        ]
         // =================================================================
         // == FIM DA LISTA DE ARQUIVOS =====================================
         // =================================================================
