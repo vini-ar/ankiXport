@@ -442,50 +442,34 @@
                     const fragment = document.createDocumentFragment();
 
                     // 1. Agrupa os arquivos pela estrutura
-                    const materias = {};
+                    const groups = {}; // Usaremos um objeto para agrupar
                     PRESET_JSON_FILES.forEach(file => {
-                        if (!file.materia) file.materia = "Outros";
-                        if (!file.topico) file.topico = "Geral";
+                        // Cria uma chave de grupo combinada, ex: "Histologia / 1.Tecnicas_Histologicas"
+                        const groupKey = `${file.materia} / ${file.topico}`;
 
-                        if (!materias[file.materia]) {
-                            materias[file.materia] = {};
+                        if (!groups[groupKey]) {
+                            groups[groupKey] = []; // Cria a lista para esse grupo
                         }
-                        if (!materias[file.materia][file.topico]) {
-                            materias[file.materia][file.topico] = [];
-                        }
-                        materias[file.materia][file.topico].push(file);
+                        groups[groupKey].push(file);
                     });
 
-                    // 2. Ordena e cria os <optgroup> para cada Matéria
-                    const materiaNomes = Object.keys(materias).sort();
+                    // 2. Ordena os nomes dos grupos
+                    const groupKeys = Object.keys(groups).sort();
                     
-                    materiaNomes.forEach(materiaNome => {
-                        const materiaGroup = document.createElement('optgroup');
-                        materiaGroup.label = materiaNome; // Ex: "Histologia"
+                    // 3. Cria um <optgroup> para cada chave de grupo
+                    groupKeys.forEach(key => {
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = key; // O label será "Histologia / 1.Tecnicas_Histologicas"
                         
-                        // 3. Ordena e cria os <optgroup> para cada Tópico
-                        const topicoNomes = Object.keys(materias[materiaNome]).sort();
-                        
-                        topicoNomes.forEach(topicoNome => {
-                            // Cria um grupo "aninhado" (o navegador exibe isso bem)
-                            // Usamos caracteres especiais para simular a árvore
-                            const topicoGroup = document.createElement('optgroup');
-                            topicoGroup.label = `  ↳ ${topicoNome}`; // Ex: "  ↳ TP 1"
-                            
-                            // 4. Adiciona os arquivos (<option>) dentro do Tópico
-                            materias[materiaNome][topicoNome].forEach(file => {
-                                const option = document.createElement('option');
-                                option.value = file.path;
-                                // Adiciona mais recuo ao nome do arquivo
-                                option.textContent = `    • ${file.name}`; // Ex: "    • aula_1"
-                                topicoGroup.appendChild(option);
-                            });
-                            
-                            // Adiciona o grupo do Tópico ao grupo da Matéria
-                            materiaGroup.appendChild(topicoGroup);
+                        // 4. Adiciona os arquivos (<option>) dentro do grupo
+                        groups[key].forEach(file => {
+                            const option = document.createElement('option');
+                            option.value = file.path;
+                            option.textContent = file.name; // Ex: "microscopio"
+                            optgroup.appendChild(option);
                         });
                         
-                        fragment.appendChild(materiaGroup);
+                        fragment.appendChild(optgroup);
                     });
 
                     selectEl.appendChild(fragment);
