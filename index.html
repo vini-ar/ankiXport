@@ -258,6 +258,23 @@
         // == LISTA DE ARQUIVOS (GERENCIADA POR SCRIPT) ====================
         // =================================================================
         const PRESET_JSON_FILES = [ // START-LIST
+            { name: "celda_renal", path: "json_files/Anatomia/outros/celda_renal.txt", materia: "Anatomia", topico: "outros" },
+            { name: "clase_abdomen_inferior_parte_1", path: "json_files/Anatomia/outros/clase_abdomen_inferior_parte_1.txt", materia: "Anatomia", topico: "outros" },
+            { name: "clase_abdomen_inferior_parte_2", path: "json_files/Anatomia/outros/clase_abdomen_inferior_parte_2.txt", materia: "Anatomia", topico: "outros" },
+            { name: "clase_genital_femenino_parte_1_mp3_320", path: "json_files/Anatomia/outros/clase_genital_femenino_parte_1_mp3_320.txt", materia: "Anatomia", topico: "outros" },
+            { name: "clase_genital_femenino_parte_2_mp3_320", path: "json_files/Anatomia/outros/clase_genital_femenino_parte_2_mp3_320.txt", materia: "Anatomia", topico: "outros" },
+            { name: "genitales_masculinos_parte_1", path: "json_files/Anatomia/outros/genitales_masculinos_parte_1.txt", materia: "Anatomia", topico: "outros" },
+            { name: "genitales_masculinos_parte_2", path: "json_files/Anatomia/outros/genitales_masculinos_parte_2.txt", materia: "Anatomia", topico: "outros" },
+            { name: "glandula_mamaria_mp3_320", path: "json_files/Anatomia/outros/glandula_mamaria_mp3_320.txt", materia: "Anatomia", topico: "outros" },
+            { name: "glandulas_suprarrenales", path: "json_files/Anatomia/outros/glandulas_suprarrenales.txt", materia: "Anatomia", topico: "outros" },
+            { name: "grandes_vasos_parte_1", path: "json_files/Anatomia/outros/grandes_vasos_parte_1.txt", materia: "Anatomia", topico: "outros" },
+            { name: "grandes_vasos_parte_2", path: "json_files/Anatomia/outros/grandes_vasos_parte_2.txt", materia: "Anatomia", topico: "outros" },
+            { name: "irrigacion_de_colon", path: "json_files/Anatomia/outros/irrigacion_de_colon.txt", materia: "Anatomia", topico: "outros" },
+            { name: "irrigacion_de_recto", path: "json_files/Anatomia/outros/irrigacion_de_recto.txt", materia: "Anatomia", topico: "outros" },
+            { name: "pelvis_y_perine_mp3_320", path: "json_files/Anatomia/outros/pelvis_y_perine_mp3_320.txt", materia: "Anatomia", topico: "outros" },
+            { name: "sistema_urinario", path: "json_files/Anatomia/outros/sistema_urinario.txt", materia: "Anatomia", topico: "outros" },
+            { name: "tronco_parte_1", path: "json_files/Anatomia/outros/tronco_parte_1.txt", materia: "Anatomia", topico: "outros" },
+            { name: "tronco_parte_2", path: "json_files/Anatomia/outros/tronco_parte_2.txt", materia: "Anatomia", topico: "outros" },
             { name: "teoria_tp_10_parte_1_2", path: "json_files/Biologia/TP 10_Membranas internas 2/teoria_tp_10_parte_1_2.txt", materia: "Biologia", topico: "TP 10_Membranas internas 2" },
             { name: "teoria_tp_10_parte_2_2", path: "json_files/Biologia/TP 10_Membranas internas 2/teoria_tp_10_parte_2_2.txt", materia: "Biologia", topico: "TP 10_Membranas internas 2" },
             { name: "teoria_tp_11_parte_1_2", path: "json_files/Biologia/TP 11_Núcleo y control de la expresión génica/teoria_tp_11_parte_1_2.txt", materia: "Biologia", topico: "TP 11_Núcleo y control de la expresión génica" },
@@ -357,7 +374,27 @@
             { name: "sistema_endocrino_4", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_4.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" },
             { name: "sistema_endocrino_parte_1", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_parte_1.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" },
             { name: "sistema_endocrino_parte_2", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_parte_2.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" },
-            { name: "sistema_endocrino_parte_3", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_parte_3.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" }
+            { name: "sistema_endocrino_parte_3", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_parte_3.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" },
+            { name: "aparato_reproductor_masculino_parte_1", path: "json_files/Histologia/outros/aparato_reproductor_masculino_parte_1.txt", materia: "Histologia", topico: "outros" },
+            { name: "aparato_reproductor_masculino_parte_2", path: "json_files/Histologia/outros/aparato_reproductor_masculino_parte_2.txt", materia: "Histologia", topico: "outros" },
+            { name: "aparato_reproductor_masculino_parte_3", path: "json_files/Histologia/outros/aparato_reproductor_masculino_parte_3.txt", materia: "Histologia", topico: "outros" },
+            { name: "aparato_reproductor_masculino_parte_4", path: "json_files/Histologia/outros/aparato_reproductor_masculino_parte_4.txt", materia: "Histologia", topico: "outros" },
+            { name: "ciclo_reproductor_femenino_parte_1", path: "json_files/Histologia/outros/ciclo_reproductor_femenino_parte_1.txt", materia: "Histologia", topico: "outros" },
+            { name: "ciclo_reproductor_femenino_parte_2", path: "json_files/Histologia/outros/ciclo_reproductor_femenino_parte_2.txt", materia: "Histologia", topico: "outros" },
+            { name: "glandula_mamaria_1", path: "json_files/Histologia/outros/glandula_mamaria_1.txt", materia: "Histologia", topico: "outros" },
+            { name: "glandula_mamaria_2", path: "json_files/Histologia/outros/glandula_mamaria_2.txt", materia: "Histologia", topico: "outros" },
+            { name: "medula_osea_1_generalidades_tejido_hematopoyetico", path: "json_files/Histologia/outros/medula_osea_1_generalidades_tejido_hematopoyetico.txt", materia: "Histologia", topico: "outros" },
+            { name: "medula_osea_2_hematopoyesis", path: "json_files/Histologia/outros/medula_osea_2_hematopoyesis.txt", materia: "Histologia", topico: "outros" },
+            { name: "medula_osea_3", path: "json_files/Histologia/outros/medula_osea_3.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_respiratorio_parte_1", path: "json_files/Histologia/outros/sistema_respiratorio_parte_1.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_respiratorio_parte_2", path: "json_files/Histologia/outros/sistema_respiratorio_parte_2.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_respiratorio_parte_3", path: "json_files/Histologia/outros/sistema_respiratorio_parte_3.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_tegumentario_parte_1", path: "json_files/Histologia/outros/sistema_tegumentario_parte_1.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_tegumentario_parte_2", path: "json_files/Histologia/outros/sistema_tegumentario_parte_2.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_tegumentario_parte_3", path: "json_files/Histologia/outros/sistema_tegumentario_parte_3.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_urinario_parte_1", path: "json_files/Histologia/outros/sistema_urinario_parte_1.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_urinario_parte_2", path: "json_files/Histologia/outros/sistema_urinario_parte_2.txt", materia: "Histologia", topico: "outros" },
+            { name: "sistema_urinario_parte_3", path: "json_files/Histologia/outros/sistema_urinario_parte_3.txt", materia: "Histologia", topico: "outros" }
         // END-LIST
 ];
         // =================================================================
