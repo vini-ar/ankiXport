@@ -5,6 +5,7 @@
     <title>AnkiXport</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <script src="app.js" defer></script>
 </head>
     <body class="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans p-4 sm:p-6 md:p-8 text-gray-800 dark:text-gray-200 transition-colors duration-300">
         <div class="container mx-auto max-w-5xl flex flex-col gap-8 md:gap-12 bg-white dark:bg-gray-800 p-6 md:p-10 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
@@ -63,6 +64,17 @@
                     </button>
                 </div>
                 <div id="flashcards-list" class="space-y-4"></div> </section>
+            
+            <section id="preview-section" class="hidden mb-8">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-6 border border-blue-200 dark:border-blue-800">
+                    <h3 class="text-blue-800 dark:text-blue-300 font-bold mb-1">Resumo da Carga</h3>
+                    <p id="summary-text" class="text-sm text-blue-700 dark:text-blue-400"></p>
+                </div>
+
+                <h2 class="section-title justify-center mb-4 text-gray-900 dark:text-gray-100 font-semibold">Preview dos Flashcards</h2>
+                <div id="cards-preview-list" class="space-y-4 max-h-96 overflow-y-auto p-2 border border-gray-200 dark:border-gray-700 rounded-xl">
+                    </div>
+            </section>
 
             <section id="export-section" class="hidden">
                 <h2 class="section-title justify-center mb-6 text-gray-900 dark:text-gray-100">Add Extra Fields</h2>
