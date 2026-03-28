@@ -102,3 +102,55 @@ ${newArrayString}
     console.error('Ocorreu um erro:');
     console.error(error);
 }
+
+async function gerarAnki(nomeMateria, listaDeCards) {
+    // 1. Criar o Modelo (Aqui você define o CSS!)
+    const model = new AnkiExport.Model({
+        name: "Modelo Personalizado",
+        id: "12345678",
+        flds: [
+            { name: "Front" },
+            { name: "Back" }
+        ],
+        tmpl: [
+            {
+                name: "Card 1",
+                qfmt: '<div class="card front">{{Front}}</div>',
+                afmt: '<div class="card back">{{Front}}<hr id="answer">{{Back}}</div>',
+            }
+        ],
+        // AQUI ESTÁ O SEU CSS PARA ESTILIZAR MELHOR
+        css: `
+            .card {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                font-size: 20px;
+                text-align: center;
+                color: #2c3e50;
+                background-color: #ecf0f1;
+                border-radius: 10px;
+                padding: 20px;
+            }
+            .front { border: 2px solid #3498db; }
+            .back { border: 2px solid #2ecc71; }
+            b { color: #e74c3c; }
+        `
+    });
+
+    const deck = new AnkiExport.Deck(123456789, nomeMateria);
+
+    // 2. Adicionar as notas (dados que você lê dos seus arquivos .txt)
+    listaDeCards.forEach(card => {
+        deck.addNote(model.note([card.pergunta, card.resposta]));
+    });
+
+    // 3. Gerar o arquivo e disparar o download
+    const zip = new AnkiExport.Package();
+    zip.addDeck(deck);
+    
+    const blob = await zip.writeToFile();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${nomeMateria}.apkg`;
+    a.click();
+}
