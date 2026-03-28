@@ -24,19 +24,31 @@ if (!Lib) {
     console.log("Biblioteca carregada com sucesso!");
 }
 
+// app.js
 exportBtn.addEventListener('click', async () => {
-    const response = await fetch('/api/generate', {
-        method: 'POST',
-        body: JSON.stringify(currentCards),
-        headers: { 'Content-Type': 'application/json' }
-    });
+    console.log("Enviando para o servidor Python no Vercel...");
+    
+    try {
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(currentCards) // Seus cards de Anatomia/Engenharia
+        });
 
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = "meu_deck.apkg";
-    a.click();
+        if (!response.ok) throw new Error("Erro no servidor");
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "AnkiXport_Cards.apkg";
+        a.click();
+        
+        console.log("Download do .apkg iniciado!");
+    } catch (err) {
+        alert("O servidor Python ainda não está pronto ou houve um erro no envio.");
+        console.error(err);
+    }
 });
 
 // 2. Função para Processar o JSON colado
