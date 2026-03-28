@@ -24,49 +24,19 @@ if (!Lib) {
     console.log("Biblioteca carregada com sucesso!");
 }
 
-
-
 exportBtn.addEventListener('click', async () => {
-    try {
-        console.log("Iniciando motor SQL...");
-        
-        // Inicializa o SQL.js apontando para o arquivo WASM remoto
-        const SQL = await initSqlJs({
-            locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}`
-        });
+    const response = await fetch('/api/generate', {
+        method: 'POST',
+        body: JSON.stringify(currentCards),
+        headers: { 'Content-Type': 'application/json' }
+    });
 
-        // Cria o Deck de Anatomia
-        const deck = new GenAnki.Deck(12345678, "Anatomia UNLP - Clase 1");
-
-        const model = new GenAnki.Model({
-            name: "Medicina_UNLP_Model",
-            id: "11223344",
-            flds: [{ name: "Front" }, { name: "Back" }],
-            tmpl: [{
-                name: "Card 1",
-                qfmt: '<div style="text-align:center; font-size:22px; font-weight:bold;">{{Front}}</div>',
-                afmt: '<div style="text-align:center; font-size:20px;">{{Front}}<hr id="answer">{{Back}}</div>',
-            }]
-        });
-
-        // 'currentCards' vem do processamento do seu JSON
-        currentCards.forEach(card => {
-            deck.addNote(model.note([card.pergunta, card.resposta]));
-        });
-
-        const package = new GenAnki.Package();
-        package.addDeck(deck);
-        
-        const zipRes = await package.writeToFile();
-        
-        // FileSaver.js dispara o download
-        saveAs(zipRes, "Anatomia_UNLP_Cards.apkg");
-        console.log("Download concluído!");
-
-    } catch (err) {
-        console.error("Erro fatal:", err);
-        alert("Erro ao exportar. Veja o console.");
-    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "meu_deck.apkg";
+    a.click();
 });
 
 // 2. Função para Processar o JSON colado
