@@ -3,156 +3,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnkiXport</title>
+    <link rel="stylesheet" href="styles.css">
 
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-        /* Import Google Font 'Inter' */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        /* Apply base font family */
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* --- ContentEditable Extra Fields --- */
-        /* Style for placeholder text when empty */
-        .global-extra-field:empty::before {
-            content: attr(data-placeholder); /* Get placeholder text from data attribute */
-            color: #9ca3af; /* Default placeholder color (gray-400) */
-            pointer-events: none;
-            display: block;
-            min-height: 1.5em;
-            cursor: text;
-        }
-        @media (prefers-color-scheme: dark) {
-            .global-extra-field:empty::before { color: #6b7280; /* Dark mode (gray-500) */ }
-        }
-        .global-extra-field:not(:empty) { color: inherit; } /* Reset color when not empty */
-        /* Base styles for contenteditable fields */
-        .global-extra-field {
-            min-height: 1.5em;
-            cursor: text;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        /* Styles for pasted images within contenteditable fields */
-        .global-extra-field img {
-            max-width: 250px; /* Max visual width in editor */
-            max-height: 200px; /* Max visual height in editor */
-            height: auto;
-            display: inline-block;
-            vertical-align: middle;
-            margin: 5px;
-            border: 1px solid #ccc;
-        }
-        @media (prefers-color-scheme: dark) {
-            .global-extra-field img { border-color: #555; }
-        }
-
-        /* --- Custom Scrollbar --- */
-        html { /* Firefox */
-            scrollbar-width: thin;
-            scrollbar-color: #9ca3af #f3f4f6; /* thumb track */
-        }
-        ::-webkit-scrollbar { width: 8px; height: 8px; } /* Webkit */
-        ::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 0.375rem; }
-        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 0.375rem; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-        @media (prefers-color-scheme: dark) { /* Dark mode scrollbar */
-            html { scrollbar-color: #6b7280 #374151; }
-            ::-webkit-scrollbar-track { background: #374151; }
-            ::-webkit-scrollbar-thumb { background: #6b7280; }
-            ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-        }
-
-        /* --- Formatted Content (Explanation/Modifications) --- */
-        .formatted-content { line-height: 1.6; }
-        .formatted-content ul, .formatted-content ol { margin-left: 1.25rem; margin-top: 0.75rem; margin-bottom: 0.75rem; padding-left: 1rem; }
-        .formatted-content ul { list-style-type: disc; }
-        .formatted-content ol { list-style-type: decimal; }
-        .formatted-content li { margin-bottom: 0.4rem; }
-        .formatted-content p { margin-bottom: 1rem; }
-        .formatted-content p:last-child { margin-bottom: 0; }
-        /* Rich text element styling */
-        #explanation-content strong, #explanation-content b,
-        #modifications-content strong, #modifications-content b { font-weight: 600; color: #1f2937; }
-        #explanation-content em, #explanation-content i,
-        #modifications-content em, #modifications-content i { font-style: italic; color: #374151; }
-        #explanation-content code,
-        #modifications-content code { background-color: #e5e7eb; padding: 0.15em 0.4em; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; color: #1f2937; word-wrap: break-word; white-space: normal; }
-        #explanation-content sub, #explanation-content sup,
-        #modifications-content sub, #modifications-content sup { font-size: 0.75em; line-height: 0; position: relative; vertical-align: baseline; }
-        #explanation-content sub, #modifications-content sub { bottom: -0.25em; }
-        #explanation-content sup, #modifications-content sup { top: -0.5em; }
-        #explanation-content pre { background-color: #f3f4f6; padding: 1rem; border-radius: 0.375rem; overflow-x: auto; margin-bottom: 1rem; font-family: monospace; font-size: 0.875rem; border: 1px solid #e5e7eb; white-space: pre-wrap; word-wrap: break-word; }
-        #explanation-content pre code { background-color: transparent; padding: 0; border-radius: 0; font-size: inherit; color: inherit; white-space: pre-wrap; }
-        #explanation-content blockquote { border-left: 4px solid #d1d5db; padding-left: 1rem; margin-left: 0; margin-bottom: 1rem; color: #4b5563; font-style: italic; }
-        #explanation-content hr { border-top: 1px solid #e5e7eb; margin: 1.5rem 0; }
-        #explanation-content h1, #explanation-content h2, #explanation-content h3, #explanation-content h4 { font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; line-height: 1.3; }
-        #explanation-content h1 { font-size: 1.875rem; } #explanation-content h2 { font-size: 1.5rem; } #explanation-content h3 { font-size: 1.25rem; } #explanation-content h4 { font-size: 1.125rem; }
-        /* Dark mode overrides for rich text */
-        @media (prefers-color-scheme: dark) {
-            #explanation-content strong,#explanation-content b,#modifications-content strong,#modifications-content b { color: #f9fafb; }
-            #explanation-content em,#explanation-content i,#modifications-content em,#modifications-content i { color: #d1d5db; }
-            #explanation-content code,#modifications-content code { background-color: #374151; color: #f3f4f6; }
-            #explanation-content pre { background-color: #1f2937; border-color: #4b5563; }
-            #explanation-content pre code { background-color: transparent; color: inherit; }
-            #explanation-content blockquote { border-left-color: #4b5563; color: #9ca3af; }
-            #explanation-content hr { border-top-color: #4b5563; }
-            #explanation-content h1,#explanation-content h2,#explanation-content h3,#explanation-content h4 { color: #f9fafb; }
-        }
-
-        /* --- UI Elements --- */
-        .export-status { display: inline-block; vertical-align: middle; margin-top: 0.35rem; }
-        .action-button { padding: 0.6rem 1.25rem; font-weight: 600; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, opacity 0.2s ease-in-out; cursor: pointer; }
-        .action-button:disabled { opacity: 0.6; cursor: not-allowed; }
-        .action-button:focus { outline: none; } /* Rely on Tailwind focus rings */
-        .button-clear-extra { padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 500; border-radius: 0.375rem; margin-top: 0.5rem; border: 1px solid; transition: background-color 0.2s ease-in-out; }
-        #ai-response { padding: 0.75rem; border-radius: 0.5rem; transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; line-height: 1.5; border: 1px solid; font-family: monospace; }
-        #ai-response:focus { outline: 2px solid transparent; outline-offset: 2px; } /* Rely on Tailwind focus rings */
-        .section-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; }
-        .section-content-box { border: 1px solid; border-radius: 0.5rem; padding: 1.25rem; }
-
-        /* --- Flashcard List Styling --- */
-        .flashcard-item { padding: 1rem; border: 1px solid; border-radius: 0.5rem; transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out; display: flex; align-items: flex-start; }
-        .flashcard-text-container { font-size: 0.875rem; padding: 0.5rem 0.75rem; border-radius: 0.375rem; border: 1px solid; word-wrap: break-word; line-height: 1.5; }
-        .flashcard-question, .flashcard-answer { margin-bottom: 0.5rem; }
-        .flashcard-answer code { background-color: #dbeafe; color: #1e40af; padding: 0.2em 0.4em; border-radius: 0.25rem; font-weight: 500; }
-        @media (prefers-color-scheme: dark) {
-            .flashcard-answer code { background-color: #1e3a8a; color: #bfdbfe; }
-        }
-        .flashcard-label { cursor: pointer; width: 100%; }
-        .flashcard-checkbox { margin-top: 0.2rem; margin-right: 0.75rem; flex-shrink: 0; height: 1.1rem; width: 1.1rem; }
-        .flashcard-content-wrapper { flex-grow: 1; }
-
-        /* --- Notification Area Styling --- */
-        #notification-area { position: fixed; top: 1rem; right: 1rem; z-index: 1050; width: 300px; max-width: 90%; }
-        .notification-toast { background-color: #fff; color: #333; border-radius: 0.375rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); opacity: 0; transform: translateX(100%); transition: opacity 0.5s ease-out, transform 0.5s ease-out; border-left-width: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .notification-toast.show { opacity: 1; transform: translateX(0); }
-        .notification-toast.success { border-left-color: #10b981; }
-        .notification-toast.error   { border-left-color: #ef4444; }
-        .notification-toast.info    { border-left-color: #3b82f6; }
-        .notification-toast-close { background: none; border: none; color: #6b7280; font-size: 1.2rem; cursor: pointer; padding: 0 0 0 0.5rem; line-height: 1; }
-        @media (prefers-color-scheme: dark) { /* Dark mode notifications */
-            .notification-toast { background-color: #374151; color: #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15); }
-            .notification-toast.success { border-left-color: #34d399; }
-            .notification-toast.error   { border-left-color: #f87171; }
-            .notification-toast.info    { border-left-color: #60a5fa; }
-            .notification-toast-close { color: #9ca3af; }
-        }
-    </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 min-h-screen font-sans p-4 sm:p-6 md:p-8 text-gray-800 dark:text-gray-200 transition-colors duration-300">
     <div class="container mx-auto max-w-5xl flex flex-col gap-8 md:gap-12 bg-white dark:bg-gray-800 p-6 md:p-10 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
-
         <header class="text-center">
             <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100">AnkiXport</h1>
             <p class="mt-2 text-lg text-gray-500 dark:text-gray-400">Organize and Export your Flashcards generated by AnkiAI</p>
         </header>
-
         <section id="input-section" class="">
-
             <div class="mb-6">
                 <label for="json-preset-select" class="block text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">Escolha um arquivo JSON:</label>
                 <select id="json-preset-select"
@@ -174,19 +35,16 @@
                 </button>
             </div>
         </section>
-
         <section id="explanation-section" class="hidden">
             <h2 class="section-title text-gray-900 dark:text-gray-100">Elaborated Explanation</h2>
             <div id="explanation-content" class="section-content-box bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 formatted-content">
                 </div>
         </section>
-
         <section id="modifications-section" class="hidden">
             <h2 class="section-title text-gray-900 dark:text-gray-100">Modifications/Integrations Made</h2>
             <div id="modifications-content" class="section-content-box bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 formatted-content">
                 </div>
         </section>
-
         <section id="flashcards-section" class="hidden">
             <h2 class="section-title text-gray-900 dark:text-gray-100">
                 Flashcards
@@ -200,7 +58,6 @@
                 </button>
             </div>
             <div id="flashcards-list" class="space-y-4"></div> </section>
-
         <section id="export-section" class="hidden">
             <h2 class="section-title justify-center mb-6 text-gray-900 dark:text-gray-100">Add Extra Fields</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -238,210 +95,6 @@
     <div id="notification-area" aria-live="polite"></div>
 
     <script>
-        /**
-         * @typedef {Object} FlashcardData
-         * @property {string} id - Unique identifier for the flashcard (e.g., 'fc-1').
-         * @property {string} originalText - The raw text/HTML content of the flashcard (Cloze format).
-         * @property {boolean} selected - Whether the flashcard is currently selected for export.
-         * @property {boolean} isValid - Whether the flashcard text contains a valid Cloze deletion pattern.
-         * @property {boolean} exported - Whether the flashcard has been included in a previous export.
-         */
-
-
-        // =================================================================
-        // == MODIFIQUE ESTA LISTA COM SEUS ARQUIVOS ========================
-        // =================================================================
-        // Liste os arquivos que estão na sua pasta /json_files/
-        // - 'name': O nome que aparecerá no dropdown (ex: "Biologia - Aula 1").
-        // - 'path': O caminho para o arquivo, relativo ao 'index.html'.
-// =================================================================
-        // == LISTA DE ARQUIVOS (GERENCIADA POR SCRIPT) ====================
-        // =================================================================
-        const PRESET_JSON_FILES = [ // START-LIST
-            { name: "Abdomen y peritoneo Parte 1", path: "json_files/Anatomia/outros/Abdomen y peritoneo Parte 1.txt", materia: "Anatomia", topico: "outros" },
-            { name: "Abdomen y peritoneo Parte 2", path: "json_files/Anatomia/outros/Abdomen y peritoneo Parte 2.txt", materia: "Anatomia", topico: "outros" },
-            { name: "Trayecto inguinal", path: "json_files/Anatomia/outros/Trayecto inguinal.txt", materia: "Anatomia", topico: "outros" },
-            { name: "Vaina de los rectos", path: "json_files/Anatomia/outros/Vaina de los rectos.txt", materia: "Anatomia", topico: "outros" },
-            { name: "celda_renal", path: "json_files/Anatomia/outros/celda_renal.txt", materia: "Anatomia", topico: "outros" },
-            { name: "clase_abdomen_inferior_parte_1", path: "json_files/Anatomia/outros/clase_abdomen_inferior_parte_1.txt", materia: "Anatomia", topico: "outros" },
-            { name: "clase_abdomen_inferior_parte_2", path: "json_files/Anatomia/outros/clase_abdomen_inferior_parte_2.txt", materia: "Anatomia", topico: "outros" },
-            { name: "clase_genital_femenino_parte_1_mp3_320", path: "json_files/Anatomia/outros/clase_genital_femenino_parte_1_mp3_320.txt", materia: "Anatomia", topico: "outros" },
-            { name: "clase_genital_femenino_parte_2_mp3_320", path: "json_files/Anatomia/outros/clase_genital_femenino_parte_2_mp3_320.txt", materia: "Anatomia", topico: "outros" },
-            { name: "genitales_masculinos_parte_1", path: "json_files/Anatomia/outros/genitales_masculinos_parte_1.txt", materia: "Anatomia", topico: "outros" },
-            { name: "genitales_masculinos_parte_2", path: "json_files/Anatomia/outros/genitales_masculinos_parte_2.txt", materia: "Anatomia", topico: "outros" },
-            { name: "glandula_mamaria_mp3_320", path: "json_files/Anatomia/outros/glandula_mamaria_mp3_320.txt", materia: "Anatomia", topico: "outros" },
-            { name: "glandulas_suprarrenales", path: "json_files/Anatomia/outros/glandulas_suprarrenales.txt", materia: "Anatomia", topico: "outros" },
-            { name: "grandes_vasos_parte_1", path: "json_files/Anatomia/outros/grandes_vasos_parte_1.txt", materia: "Anatomia", topico: "outros" },
-            { name: "grandes_vasos_parte_2", path: "json_files/Anatomia/outros/grandes_vasos_parte_2.txt", materia: "Anatomia", topico: "outros" },
-            { name: "irrigacion_de_colon", path: "json_files/Anatomia/outros/irrigacion_de_colon.txt", materia: "Anatomia", topico: "outros" },
-            { name: "irrigacion_de_recto", path: "json_files/Anatomia/outros/irrigacion_de_recto.txt", materia: "Anatomia", topico: "outros" },
-            { name: "pelvis_y_perine_mp3_320", path: "json_files/Anatomia/outros/pelvis_y_perine_mp3_320.txt", materia: "Anatomia", topico: "outros" },
-            { name: "sistema_urinario", path: "json_files/Anatomia/outros/sistema_urinario.txt", materia: "Anatomia", topico: "outros" },
-            { name: "tronco_parte_1", path: "json_files/Anatomia/outros/tronco_parte_1.txt", materia: "Anatomia", topico: "outros" },
-            { name: "tronco_parte_2", path: "json_files/Anatomia/outros/tronco_parte_2.txt", materia: "Anatomia", topico: "outros" },
-            { name: "teoria_tp_10_parte_1_2", path: "json_files/Biologia/TP 10_Membranas internas 2/teoria_tp_10_parte_1_2.txt", materia: "Biologia", topico: "TP 10_Membranas internas 2" },
-            { name: "teoria_tp_10_parte_2_2", path: "json_files/Biologia/TP 10_Membranas internas 2/teoria_tp_10_parte_2_2.txt", materia: "Biologia", topico: "TP 10_Membranas internas 2" },
-            { name: "teoria_tp_11_parte_1_2", path: "json_files/Biologia/TP 11_Núcleo y control de la expresión génica/teoria_tp_11_parte_1_2.txt", materia: "Biologia", topico: "TP 11_Núcleo y control de la expresión génica" },
-            { name: "teoria_tp_11_parte_2_2", path: "json_files/Biologia/TP 11_Núcleo y control de la expresión génica/teoria_tp_11_parte_2_2.txt", materia: "Biologia", topico: "TP 11_Núcleo y control de la expresión génica" },
-            { name: "teoria_tp_12_citoesqueleto", path: "json_files/Biologia/TP 12_Citoesqueleto, uniones y matriz/teoria_tp_12_citoesqueleto.txt", materia: "Biologia", topico: "TP 12_Citoesqueleto, uniones y matriz" },
-            { name: "teoria_tp_12_uniones_y_matriz", path: "json_files/Biologia/TP 12_Citoesqueleto, uniones y matriz/teoria_tp_12_uniones_y_matriz.txt", materia: "Biologia", topico: "TP 12_Citoesqueleto, uniones y matriz" },
-            { name: "integracion_ciclo_celular", path: "json_files/Biologia/TP 13_Ciclo celular, apoptosis y necrosis/integracion_ciclo_celular.txt", materia: "Biologia", topico: "TP 13_Ciclo celular, apoptosis y necrosis" },
-            { name: "teoria_tp_13_parte_1_2", path: "json_files/Biologia/TP 13_Ciclo celular, apoptosis y necrosis/teoria_tp_13_parte_1_2.txt", materia: "Biologia", topico: "TP 13_Ciclo celular, apoptosis y necrosis" },
-            { name: "teoria_tp_13_parte_2_2", path: "json_files/Biologia/TP 13_Ciclo celular, apoptosis y necrosis/teoria_tp_13_parte_2_2.txt", materia: "Biologia", topico: "TP 13_Ciclo celular, apoptosis y necrosis" },
-            { name: "teoria_tp_14_mitosis_y_meiosis", path: "json_files/Biologia/TP 14_Mecanismos de división celular mitosis y meiosis/teoria_tp_14_mitosis_y_meiosis.txt", materia: "Biologia", topico: "TP 14_Mecanismos de división celular mitosis y meiosis" },
-            { name: "teoria_tp_15_parte_1_3", path: "json_files/Biologia/TP 15_Transmisión y distribución del material genetica/teoria_tp_15_parte_1_3.txt", materia: "Biologia", topico: "TP 15_Transmisión y distribución del material genetica" },
-            { name: "teoria_tp_15_parte_2_3", path: "json_files/Biologia/TP 15_Transmisión y distribución del material genetica/teoria_tp_15_parte_2_3.txt", materia: "Biologia", topico: "TP 15_Transmisión y distribución del material genetica" },
-            { name: "teoria_tp_15_parte_3_3", path: "json_files/Biologia/TP 15_Transmisión y distribución del material genetica/teoria_tp_15_parte_3_3.txt", materia: "Biologia", topico: "TP 15_Transmisión y distribución del material genetica" },
-            { name: "teoria_tp_16", path: "json_files/Biologia/TP 16_Señalización celular/teoria_tp_16.txt", materia: "Biologia", topico: "TP 16_Señalización celular" },
-            { name: "agua_teoria_1", path: "json_files/Biologia/TP 2_Agua y pequeñas moléculas/agua_teoria_1.txt", materia: "Biologia", topico: "TP 2_Agua y pequeñas moléculas" },
-            { name: "agua_teoria_2_parte_1_3", path: "json_files/Biologia/TP 2_Agua y pequeñas moléculas/agua_teoria_2_parte_1_3.txt", materia: "Biologia", topico: "TP 2_Agua y pequeñas moléculas" },
-            { name: "agua_teoria_2_parte_2_3", path: "json_files/Biologia/TP 2_Agua y pequeñas moléculas/agua_teoria_2_parte_2_3.txt", materia: "Biologia", topico: "TP 2_Agua y pequeñas moléculas" },
-            { name: "agua_teoria_2_parte_3_3_ph", path: "json_files/Biologia/TP 2_Agua y pequeñas moléculas/agua_teoria_2_parte_3_3_ph.txt", materia: "Biologia", topico: "TP 2_Agua y pequeñas moléculas" },
-            { name: "pequenas_moleculas_teoria_2", path: "json_files/Biologia/TP 2_Agua y pequeñas moléculas/pequenas_moleculas_teoria_2.txt", materia: "Biologia", topico: "TP 2_Agua y pequeñas moléculas" },
-            { name: "pequenas_moleculas_teoria_parte_1_2", path: "json_files/Biologia/TP 2_Agua y pequeñas moléculas/pequenas_moleculas_teoria_parte_1_2.txt", materia: "Biologia", topico: "TP 2_Agua y pequeñas moléculas" },
-            { name: "teoria_tp_3_parte_1_3", path: "json_files/Biologia/TP 3_Moléculas orgánicas /teoria_tp_3_parte_1_3.txt", materia: "Biologia", topico: "TP 3_Moléculas orgánicas " },
-            { name: "teoria_tp_3_parte_2_3", path: "json_files/Biologia/TP 3_Moléculas orgánicas /teoria_tp_3_parte_2_3.txt", materia: "Biologia", topico: "TP 3_Moléculas orgánicas " },
-            { name: "teoria_tp_4_parte_1_2", path: "json_files/Biologia/TP 4_Bioenergética y cinética /teoria_tp_4_parte_1_2.txt", materia: "Biologia", topico: "TP 4_Bioenergética y cinética " },
-            { name: "teoria_tp_4_parte_2_2", path: "json_files/Biologia/TP 4_Bioenergética y cinética /teoria_tp_4_parte_2_2.txt", materia: "Biologia", topico: "TP 4_Bioenergética y cinética " },
-            { name: "teoria_tp_5_parte_1_2", path: "json_files/Biologia/TP 5_Mecanismos Genéticos Básicos 1/teoria_tp_5_parte_1_2.txt", materia: "Biologia", topico: "TP 5_Mecanismos Genéticos Básicos 1" },
-            { name: "teoria_tp_5_parte_2_2_1", path: "json_files/Biologia/TP 5_Mecanismos Genéticos Básicos 1/teoria_tp_5_parte_2_2_1.txt", materia: "Biologia", topico: "TP 5_Mecanismos Genéticos Básicos 1" },
-            { name: "teoria_tp_6_parte_1_2", path: "json_files/Biologia/TP 6_Mecanismos Genéticos Básicos 2/teoria_tp_6_parte_1_2.txt", materia: "Biologia", topico: "TP 6_Mecanismos Genéticos Básicos 2" },
-            { name: "teoria_tp_6_parte_2_2", path: "json_files/Biologia/TP 6_Mecanismos Genéticos Básicos 2/teoria_tp_6_parte_2_2.txt", materia: "Biologia", topico: "TP 6_Mecanismos Genéticos Básicos 2" },
-            { name: "teoria_tp_7_parte_1_4", path: "json_files/Biologia/TP 7_Membrana y transporte/teoria_tp_7_parte_1_4.txt", materia: "Biologia", topico: "TP 7_Membrana y transporte" },
-            { name: "teoria_tp_7_parte_2_4", path: "json_files/Biologia/TP 7_Membrana y transporte/teoria_tp_7_parte_2_4.txt", materia: "Biologia", topico: "TP 7_Membrana y transporte" },
-            { name: "teoria_tp_7_parte_3_4", path: "json_files/Biologia/TP 7_Membrana y transporte/teoria_tp_7_parte_3_4.txt", materia: "Biologia", topico: "TP 7_Membrana y transporte" },
-            { name: "teoria_tp_7_parte_4_4", path: "json_files/Biologia/TP 7_Membrana y transporte/teoria_tp_7_parte_4_4.txt", materia: "Biologia", topico: "TP 7_Membrana y transporte" },
-            { name: "teoria_tp_8_parte_1_2", path: "json_files/Biologia/TP 8_Mitocondria y Conversión energética/teoria_tp_8_parte_1_2.txt", materia: "Biologia", topico: "TP 8_Mitocondria y Conversión energética" },
-            { name: "teoria_tp_8_parte_2_2", path: "json_files/Biologia/TP 8_Mitocondria y Conversión energética/teoria_tp_8_parte_2_2.txt", materia: "Biologia", topico: "TP 8_Mitocondria y Conversión energética" },
-            { name: "teoria_tp_9_parte_1_2", path: "json_files/Biologia/TP 9_Membranas internas 1/teoria_tp_9_parte_1_2.txt", materia: "Biologia", topico: "TP 9_Membranas internas 1" },
-            { name: "teoria_tp_9_parte_2_2", path: "json_files/Biologia/TP 9_Membranas internas 1/teoria_tp_9_parte_2_2.txt", materia: "Biologia", topico: "TP 9_Membranas internas 1" },
-            { name: "BOLILLERO_1_F", path: "json_files/Bolillero/1/BOLILLERO_1_F.txt", materia: "Bolillero", topico: "1" },
-            { name: "bolilla_1_a", path: "json_files/Bolillero/1/bolilla_1_a.txt", materia: "Bolillero", topico: "1" },
-            { name: "bolilla_1_b", path: "json_files/Bolillero/1/bolilla_1_b.txt", materia: "Bolillero", topico: "1" },
-            { name: "bolillero_1_d", path: "json_files/Bolillero/1/bolillero_1_d.txt", materia: "Bolillero", topico: "1" },
-            { name: "bolillero_1_e", path: "json_files/Bolillero/1/bolillero_1_e.txt", materia: "Bolillero", topico: "1" },
-            { name: "1_semana_de_gestacion_parte_1", path: "json_files/Embriologia/1 Semana/1_semana_de_gestacion_parte_1.txt", materia: "Embriologia", topico: "1 Semana" },
-            { name: "primera_semana_de_gestacion_parte_2", path: "json_files/Embriologia/1 Semana/primera_semana_de_gestacion_parte_2.txt", materia: "Embriologia", topico: "1 Semana" },
-            { name: "segunda_semana_de_gestacion_parte_1", path: "json_files/Embriologia/2 Semana/segunda_semana_de_gestacion_parte_1.txt", materia: "Embriologia", topico: "2 Semana" },
-            { name: "segunda_semana_de_gestacion_parte_2", path: "json_files/Embriologia/2 Semana/segunda_semana_de_gestacion_parte_2.txt", materia: "Embriologia", topico: "2 Semana" },
-            { name: "segunda_semana_de_gestacion_parte_3", path: "json_files/Embriologia/2 Semana/segunda_semana_de_gestacion_parte_3.txt", materia: "Embriologia", topico: "2 Semana" },
-            { name: "3_semana_de_gestacion_parte_1", path: "json_files/Embriologia/3 Semana/3_semana_de_gestacion_parte_1.txt", materia: "Embriologia", topico: "3 Semana" },
-            { name: "3_semana_de_gestacion_parte_2", path: "json_files/Embriologia/3 Semana/3_semana_de_gestacion_parte_2.txt", materia: "Embriologia", topico: "3 Semana" },
-            { name: "3_semana_de_gestacion_parte_3", path: "json_files/Embriologia/3 Semana/3_semana_de_gestacion_parte_3.txt", materia: "Embriologia", topico: "3 Semana" },
-            { name: "desarrollo_del_corazon_parte_1", path: "json_files/Embriologia/Desarollo Corazon/desarrollo_del_corazon_parte_1.txt", materia: "Embriologia", topico: "Desarollo Corazon" },
-            { name: "desarrollo_del_corazon_parte_2", path: "json_files/Embriologia/Desarollo Corazon/desarrollo_del_corazon_parte_2.txt", materia: "Embriologia", topico: "Desarollo Corazon" },
-            { name: "desarrollo_digestivo_2_higado_y_pancreas_parte_1", path: "json_files/Embriologia/Desarollo Digestivo/desarrollo_digestivo_2_higado_y_pancreas_parte_1.txt", materia: "Embriologia", topico: "Desarollo Digestivo" },
-            { name: "desarrollo_digestivo_2_higado_y_pancreas_parte_2", path: "json_files/Embriologia/Desarollo Digestivo/desarrollo_digestivo_2_higado_y_pancreas_parte_2.txt", materia: "Embriologia", topico: "Desarollo Digestivo" },
-            { name: "desarrollo_sistema_digestivo_parte_1", path: "json_files/Embriologia/Desarollo Digestivo/desarrollo_sistema_digestivo_parte_1.txt", materia: "Embriologia", topico: "Desarollo Digestivo" },
-            { name: "desarrollo_sistema_digestivo_parte_2", path: "json_files/Embriologia/Desarollo Digestivo/desarrollo_sistema_digestivo_parte_2.txt", materia: "Embriologia", topico: "Desarollo Digestivo" },
-            { name: "desarrollo_sistema_digestivo_parte_3", path: "json_files/Embriologia/Desarollo Digestivo/desarrollo_sistema_digestivo_parte_3.txt", materia: "Embriologia", topico: "Desarollo Digestivo" },
-            { name: "desarrollo_sistema_endocrino", path: "json_files/Embriologia/Desarollo Endocrino/desarrollo_sistema_endocrino.txt", materia: "Embriologia", topico: "Desarollo Endocrino" },
-            { name: "desarrollo_respiratorio_1", path: "json_files/Embriologia/Desarollo Respiratorio/desarrollo_respiratorio_1.txt", materia: "Embriologia", topico: "Desarollo Respiratorio" },
-            { name: "desarrollo_respiratorio_2", path: "json_files/Embriologia/Desarollo Respiratorio/desarrollo_respiratorio_2.txt", materia: "Embriologia", topico: "Desarollo Respiratorio" },
-            { name: "desarrollo_sistema_genital_1", path: "json_files/Embriologia/Desarollo Sistema Genital/desarrollo_sistema_genital_1.txt", materia: "Embriologia", topico: "Desarollo Sistema Genital" },
-            { name: "desarrollo_sistema_genital_3", path: "json_files/Embriologia/Desarollo Sistema Genital/desarrollo_sistema_genital_3.txt", materia: "Embriologia", topico: "Desarollo Sistema Genital" },
-            { name: "desarrollo_sistema_genital_4", path: "json_files/Embriologia/Desarollo Sistema Genital/desarrollo_sistema_genital_4.txt", materia: "Embriologia", topico: "Desarollo Sistema Genital" },
-            { name: "periodo_somitico_parte_1", path: "json_files/Embriologia/Desarollo Somitico/periodo_somitico_parte_1.txt", materia: "Embriologia", topico: "Desarollo Somitico" },
-            { name: "periodo_somitico_parte_2", path: "json_files/Embriologia/Desarollo Somitico/periodo_somitico_parte_2.txt", materia: "Embriologia", topico: "Desarollo Somitico" },
-            { name: "desarrollo_tegumentario", path: "json_files/Embriologia/Desarollo Tegumentario/desarrollo_tegumentario.txt", materia: "Embriologia", topico: "Desarollo Tegumentario" },
-            { name: "desarrollo_del_sistema_urinario_1", path: "json_files/Embriologia/Desarollo Urinario/desarrollo_del_sistema_urinario_1.txt", materia: "Embriologia", topico: "Desarollo Urinario" },
-            { name: "desarrollo_del_sistema_urinario_2", path: "json_files/Embriologia/Desarollo Urinario/desarrollo_del_sistema_urinario_2.txt", materia: "Embriologia", topico: "Desarollo Urinario" },
-            { name: "desarrollo_del_sistema_urinario_3", path: "json_files/Embriologia/Desarollo Urinario/desarrollo_del_sistema_urinario_3.txt", materia: "Embriologia", topico: "Desarollo Urinario" },
-            { name: "fecundacion_parte_1", path: "json_files/Embriologia/Fecundacion/fecundacion_parte_1.txt", materia: "Embriologia", topico: "Fecundacion" },
-            { name: "fecundacion_parte_2", path: "json_files/Embriologia/Fecundacion/fecundacion_parte_2.txt", materia: "Embriologia", topico: "Fecundacion" },
-            { name: "fecundacion_parte_3", path: "json_files/Embriologia/Fecundacion/fecundacion_parte_3.txt", materia: "Embriologia", topico: "Fecundacion" },
-            { name: "neurulacion", path: "json_files/Embriologia/Neurulacion/neurulacion.txt", materia: "Embriologia", topico: "Neurulacion" },
-            { name: "tecnica_histologica_y_microscopio_parte_1", path: "json_files/Histologia/1.Tecnicas_Histologicas/tecnica_histologica_y_microscopio_parte_1.txt", materia: "Histologia", topico: "1.Tecnicas_Histologicas" },
-            { name: "tecnica_histologica_y_microscopio_parte_2", path: "json_files/Histologia/1.Tecnicas_Histologicas/tecnica_histologica_y_microscopio_parte_2.txt", materia: "Histologia", topico: "1.Tecnicas_Histologicas" },
-            { name: "tecnica_histologica_y_microscopio_parte_3", path: "json_files/Histologia/1.Tecnicas_Histologicas/tecnica_histologica_y_microscopio_parte_3.txt", materia: "Histologia", topico: "1.Tecnicas_Histologicas" },
-            { name: "epitelio_glandular_endocrino_y_microscopio_parte_1", path: "json_files/Histologia/2.Tejido_Epitelial/epitelio_glandular_endocrino_y_microscopio_parte_1.txt", materia: "Histologia", topico: "2.Tejido_Epitelial" },
-            { name: "repaso_e_integracion_de_generalidades_de_tejido_epitelial_y_tejido_epitelial_de_revestimiento", path: "json_files/Histologia/2.Tejido_Epitelial/repaso_e_integracion_de_generalidades_de_tejido_epitelial_y_tejido_epitelial_de_revestimiento.txt", materia: "Histologia", topico: "2.Tejido_Epitelial" },
-            { name: "tejido_epitelial_de_revestimiento_parte_1", path: "json_files/Histologia/2.Tejido_Epitelial/tejido_epitelial_de_revestimiento_parte_1.txt", materia: "Histologia", topico: "2.Tejido_Epitelial" },
-            { name: "tejido_epitelial_de_revestimiento_parte_2", path: "json_files/Histologia/2.Tejido_Epitelial/tejido_epitelial_de_revestimiento_parte_2.txt", materia: "Histologia", topico: "2.Tejido_Epitelial" },
-            { name: "tejido_epitelial_generalidades_parte_1", path: "json_files/Histologia/2.Tejido_Epitelial/tejido_epitelial_generalidades_parte_1.txt", materia: "Histologia", topico: "2.Tejido_Epitelial" },
-            { name: "tejido_epitelial_generalidades_parte_2", path: "json_files/Histologia/2.Tejido_Epitelial/tejido_epitelial_generalidades_parte_2.txt", materia: "Histologia", topico: "2.Tejido_Epitelial" },
-            { name: "tejido_epitelial_glandular_exocrino_parte_2", path: "json_files/Histologia/2.Tejido_Epitelial/tejido_epitelial_glandular_exocrino_parte_2.txt", materia: "Histologia", topico: "2.Tejido_Epitelial" },
-            { name: "tejido_epitelial_glandular_generalidades_tejido_glandular_exocrino_parte_1", path: "json_files/Histologia/2.Tejido_Epitelial/tejido_epitelial_glandular_generalidades_tejido_glandular_exocrino_parte_1.txt", materia: "Histologia", topico: "2.Tejido_Epitelial" },
-            { name: "tejido_conectivo_1", path: "json_files/Histologia/3.Tejido_Conectivo/tejido_conectivo_1.txt", materia: "Histologia", topico: "3.Tejido_Conectivo" },
-            { name: "tejido_conectivo_2", path: "json_files/Histologia/3.Tejido_Conectivo/tejido_conectivo_2.txt", materia: "Histologia", topico: "3.Tejido_Conectivo" },
-            { name: "tejido_conectivo_3", path: "json_files/Histologia/3.Tejido_Conectivo/tejido_conectivo_3.txt", materia: "Histologia", topico: "3.Tejido_Conectivo" },
-            { name: "tejido_conectivo_4", path: "json_files/Histologia/3.Tejido_Conectivo/tejido_conectivo_4.txt", materia: "Histologia", topico: "3.Tejido_Conectivo" },
-            { name: "microscopio_tej_cartilaginoso_y_oseo_parte_2", path: "json_files/Histologia/4.Tejido_Cartilaginoso_y_Oseo/microscopio_tej_cartilaginoso_y_oseo_parte_2.txt", materia: "Histologia", topico: "4.Tejido_Cartilaginoso_y_Oseo" },
-            { name: "tejido_cartilaginoso_parte_1", path: "json_files/Histologia/4.Tejido_Cartilaginoso_y_Oseo/tejido_cartilaginoso_parte_1.txt", materia: "Histologia", topico: "4.Tejido_Cartilaginoso_y_Oseo" },
-            { name: "tejido_cartilaginoso_parte_2", path: "json_files/Histologia/4.Tejido_Cartilaginoso_y_Oseo/tejido_cartilaginoso_parte_2.txt", materia: "Histologia", topico: "4.Tejido_Cartilaginoso_y_Oseo" },
-            { name: "tejido_oseo_parte_1", path: "json_files/Histologia/4.Tejido_Cartilaginoso_y_Oseo/tejido_oseo_parte_1.txt", materia: "Histologia", topico: "4.Tejido_Cartilaginoso_y_Oseo" },
-            { name: "tejido_oseo_parte_2_y_microscopio", path: "json_files/Histologia/4.Tejido_Cartilaginoso_y_Oseo/tejido_oseo_parte_2_y_microscopio.txt", materia: "Histologia", topico: "4.Tejido_Cartilaginoso_y_Oseo" },
-            { name: "generalidades_de_tejido_muscular_tejido_muscular_estriado_esqueleticovisceral_parte_1", path: "json_files/Histologia/5.Tejido_Muscular/generalidades_de_tejido_muscular_tejido_muscular_estriado_esqueleticovisceral_parte_1.txt", materia: "Histologia", topico: "5.Tejido_Muscular" },
-            { name: "tejido_muscular_estrado_esqueletico_y_visceral_parte_2", path: "json_files/Histologia/5.Tejido_Muscular/tejido_muscular_estrado_esqueletico_y_visceral_parte_2.txt", materia: "Histologia", topico: "5.Tejido_Muscular" },
-            { name: "tejido_muscular_estrado_esqueletico_y_visceral_parte_3", path: "json_files/Histologia/5.Tejido_Muscular/tejido_muscular_estrado_esqueletico_y_visceral_parte_3.txt", materia: "Histologia", topico: "5.Tejido_Muscular" },
-            { name: "tejido_muscular_estriado_cardiaco", path: "json_files/Histologia/5.Tejido_Muscular/tejido_muscular_estriado_cardiaco.txt", materia: "Histologia", topico: "5.Tejido_Muscular" },
-            { name: "tejido_muscular_liso", path: "json_files/Histologia/5.Tejido_Muscular/tejido_muscular_liso.txt", materia: "Histologia", topico: "5.Tejido_Muscular" },
-            { name: "sistema_nervioso_parte_1", path: "json_files/Histologia/6.Tejido_y_Sistema_Nervioso/sistema_nervioso_parte_1.txt", materia: "Histologia", topico: "6.Tejido_y_Sistema_Nervioso" },
-            { name: "sistema_nervioso_parte_2", path: "json_files/Histologia/6.Tejido_y_Sistema_Nervioso/sistema_nervioso_parte_2.txt", materia: "Histologia", topico: "6.Tejido_y_Sistema_Nervioso" },
-            { name: "sistema_nervioso_parte_3", path: "json_files/Histologia/6.Tejido_y_Sistema_Nervioso/sistema_nervioso_parte_3.txt", materia: "Histologia", topico: "6.Tejido_y_Sistema_Nervioso" },
-            { name: "tejido_nervioso_parte_4", path: "json_files/Histologia/6.Tejido_y_Sistema_Nervioso/tejido_nervioso_parte_4.txt", materia: "Histologia", topico: "6.Tejido_y_Sistema_Nervioso" },
-            { name: "tejido_y_sistema_nervioso_parte_1", path: "json_files/Histologia/6.Tejido_y_Sistema_Nervioso/tejido_y_sistema_nervioso_parte_1.txt", materia: "Histologia", topico: "6.Tejido_y_Sistema_Nervioso" },
-            { name: "tejido_y_sistema_nervioso_parte_2", path: "json_files/Histologia/6.Tejido_y_Sistema_Nervioso/tejido_y_sistema_nervioso_parte_2.txt", materia: "Histologia", topico: "6.Tejido_y_Sistema_Nervioso" },
-            { name: "tejido_y_sistema_nervioso_parte_3", path: "json_files/Histologia/6.Tejido_y_Sistema_Nervioso/tejido_y_sistema_nervioso_parte_3.txt", materia: "Histologia", topico: "6.Tejido_y_Sistema_Nervioso" },
-            { name: "sistema_cardiovascular_parte_1", path: "json_files/Histologia/7.Sistema_Cardiovascular/sistema_cardiovascular_parte_1.txt", materia: "Histologia", topico: "7.Sistema_Cardiovascular" },
-            { name: "sistema_cardiovascular_parte_2", path: "json_files/Histologia/7.Sistema_Cardiovascular/sistema_cardiovascular_parte_2.txt", materia: "Histologia", topico: "7.Sistema_Cardiovascular" },
-            { name: "sistema_cardiovascular_parte_3", path: "json_files/Histologia/7.Sistema_Cardiovascular/sistema_cardiovascular_parte_3.txt", materia: "Histologia", topico: "7.Sistema_Cardiovascular" },
-            { name: "sistema_cardiovascular_parte_4", path: "json_files/Histologia/7.Sistema_Cardiovascular/sistema_cardiovascular_parte_4.txt", materia: "Histologia", topico: "7.Sistema_Cardiovascular" },
-            { name: "sistema_cardiovascular_parte_5", path: "json_files/Histologia/7.Sistema_Cardiovascular/sistema_cardiovascular_parte_5.txt", materia: "Histologia", topico: "7.Sistema_Cardiovascular" },
-            { name: "Bazo_Parte_2_Preparados_histologicos", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/Bazo_Parte_2_Preparados_histologicos.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "clasificacion_de_organos_linfoides_ganglio_linfatico_parte_1", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/clasificacion_de_organos_linfoides_ganglio_linfatico_parte_1.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "cpa_clasificacion_del_tejido_linfatico", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/cpa_clasificacion_del_tejido_linfatico.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "ganglio_linfatico_parte_2_timo_parte_1", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/ganglio_linfatico_parte_2_timo_parte_1.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "preparados_histologicos_organos_linfaticos_parte_2", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/preparados_histologicos_organos_linfaticos_parte_2.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "sistema_linfatico_parte_1_generalidades", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/sistema_linfatico_parte_1_generalidades.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "sistema_linfatico_parte_2", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/sistema_linfatico_parte_2.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "tejido_linfatico_linfocitos", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/tejido_linfatico_linfocitos.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "timo_parte_2_bazo_parte_1", path: "json_files/Histologia/7.Tejido_y_Sistema_Linfatico/timo_parte_2_bazo_parte_1.txt", materia: "Histologia", topico: "7.Tejido_y_Sistema_Linfatico" },
-            { name: "glandulas_anexas_higado_parte_1", path: "json_files/Histologia/8.Sistema_Digestivo/glandulas_anexas_higado_parte_1.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "glandulas_anexas_higado_parte_2", path: "json_files/Histologia/8.Sistema_Digestivo/glandulas_anexas_higado_parte_2.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "glandulas_anexas_higado_parte_3_vesicula_biliar", path: "json_files/Histologia/8.Sistema_Digestivo/glandulas_anexas_higado_parte_3_vesicula_biliar.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "glandulas_anexas_pancreas", path: "json_files/Histologia/8.Sistema_Digestivo/glandulas_anexas_pancreas.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "integracion_tubo_digestivo_1", path: "json_files/Histologia/8.Sistema_Digestivo/integracion_tubo_digestivo_1.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "microscopio_tubo_digestivo_1", path: "json_files/Histologia/8.Sistema_Digestivo/microscopio_tubo_digestivo_1.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "microscopio_tubo_digestivo_2", path: "json_files/Histologia/8.Sistema_Digestivo/microscopio_tubo_digestivo_2.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "sistema_digestivo_1_parte_1", path: "json_files/Histologia/8.Sistema_Digestivo/sistema_digestivo_1_parte_1.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "sistema_digestivo_1_parte_2", path: "json_files/Histologia/8.Sistema_Digestivo/sistema_digestivo_1_parte_2.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "sistema_digestivo_1_parte_3", path: "json_files/Histologia/8.Sistema_Digestivo/sistema_digestivo_1_parte_3.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "sistema_digestivo_2_estomago", path: "json_files/Histologia/8.Sistema_Digestivo/sistema_digestivo_2_estomago.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "sistema_digestivo_2_generalidades_esofago", path: "json_files/Histologia/8.Sistema_Digestivo/sistema_digestivo_2_generalidades_esofago.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "sistema_digestivo_2_intestino_delgado", path: "json_files/Histologia/8.Sistema_Digestivo/sistema_digestivo_2_intestino_delgado.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "sistema_digestivo_2_intestino_grueso", path: "json_files/Histologia/8.Sistema_Digestivo/sistema_digestivo_2_intestino_grueso.txt", materia: "Histologia", topico: "8.Sistema_Digestivo" },
-            { name: "sistema_endocrino_4", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_4.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" },
-            { name: "sistema_endocrino_parte_1", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_parte_1.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" },
-            { name: "sistema_endocrino_parte_2", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_parte_2.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" },
-            { name: "sistema_endocrino_parte_3", path: "json_files/Histologia/9.Sistema_Endocrino/sistema_endocrino_parte_3.txt", materia: "Histologia", topico: "9.Sistema_Endocrino" },
-            { name: "ciclo_reproductor_femenino_parte_1", path: "json_files/Histologia/Sistema Genital Feminino/ciclo_reproductor_femenino_parte_1.txt", materia: "Histologia", topico: "Sistema Genital Feminino" },
-            { name: "ciclo_reproductor_femenino_parte_2", path: "json_files/Histologia/Sistema Genital Feminino/ciclo_reproductor_femenino_parte_2.txt", materia: "Histologia", topico: "Sistema Genital Feminino" },
-            { name: "glandula_mamaria_1", path: "json_files/Histologia/Sistema Genital Feminino/glandula_mamaria_1.txt", materia: "Histologia", topico: "Sistema Genital Feminino" },
-            { name: "glandula_mamaria_2", path: "json_files/Histologia/Sistema Genital Feminino/glandula_mamaria_2.txt", materia: "Histologia", topico: "Sistema Genital Feminino" },
-            { name: "aparato_reproductor_masculino_parte_1", path: "json_files/Histologia/Sistema Genital Masculino/aparato_reproductor_masculino_parte_1.txt", materia: "Histologia", topico: "Sistema Genital Masculino" },
-            { name: "aparato_reproductor_masculino_parte_2", path: "json_files/Histologia/Sistema Genital Masculino/aparato_reproductor_masculino_parte_2.txt", materia: "Histologia", topico: "Sistema Genital Masculino" },
-            { name: "aparato_reproductor_masculino_parte_3", path: "json_files/Histologia/Sistema Genital Masculino/aparato_reproductor_masculino_parte_3.txt", materia: "Histologia", topico: "Sistema Genital Masculino" },
-            { name: "aparato_reproductor_masculino_parte_4", path: "json_files/Histologia/Sistema Genital Masculino/aparato_reproductor_masculino_parte_4.txt", materia: "Histologia", topico: "Sistema Genital Masculino" },
-            { name: "sistema_respiratorio_parte_1", path: "json_files/Histologia/Sistema Respiratorio/sistema_respiratorio_parte_1.txt", materia: "Histologia", topico: "Sistema Respiratorio" },
-            { name: "sistema_respiratorio_parte_2", path: "json_files/Histologia/Sistema Respiratorio/sistema_respiratorio_parte_2.txt", materia: "Histologia", topico: "Sistema Respiratorio" },
-            { name: "sistema_respiratorio_parte_3", path: "json_files/Histologia/Sistema Respiratorio/sistema_respiratorio_parte_3.txt", materia: "Histologia", topico: "Sistema Respiratorio" },
-            { name: "sistema_tegumentario_parte_1", path: "json_files/Histologia/Sistema Tegumentario/sistema_tegumentario_parte_1.txt", materia: "Histologia", topico: "Sistema Tegumentario" },
-            { name: "sistema_tegumentario_parte_2", path: "json_files/Histologia/Sistema Tegumentario/sistema_tegumentario_parte_2.txt", materia: "Histologia", topico: "Sistema Tegumentario" },
-            { name: "sistema_tegumentario_parte_3", path: "json_files/Histologia/Sistema Tegumentario/sistema_tegumentario_parte_3.txt", materia: "Histologia", topico: "Sistema Tegumentario" },
-            { name: "sistema_urinario_parte_1", path: "json_files/Histologia/Sistema Urinario/sistema_urinario_parte_1.txt", materia: "Histologia", topico: "Sistema Urinario" },
-            { name: "sistema_urinario_parte_2", path: "json_files/Histologia/Sistema Urinario/sistema_urinario_parte_2.txt", materia: "Histologia", topico: "Sistema Urinario" },
-            { name: "sistema_urinario_parte_3", path: "json_files/Histologia/Sistema Urinario/sistema_urinario_parte_3.txt", materia: "Histologia", topico: "Sistema Urinario" },
-            { name: "medula_osea_1_generalidades_tejido_hematopoyetico", path: "json_files/Histologia/Tejido Sanguineo/medula_osea_1_generalidades_tejido_hematopoyetico.txt", materia: "Histologia", topico: "Tejido Sanguineo" },
-            { name: "medula_osea_2_hematopoyesis", path: "json_files/Histologia/Tejido Sanguineo/medula_osea_2_hematopoyesis.txt", materia: "Histologia", topico: "Tejido Sanguineo" },
-            { name: "medula_osea_3", path: "json_files/Histologia/Tejido Sanguineo/medula_osea_3.txt", materia: "Histologia", topico: "Tejido Sanguineo" }
-        // END-LIST
-];
-        // =================================================================
-        // == FIM DA LISTA DE ARQUIVOS =====================================
-        // =================================================================
-
-
         /**
          * AnkiXportApp
          * Handles processing AnkiAI JSON output, displaying flashcards,
