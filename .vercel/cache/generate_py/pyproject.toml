@@ -1,5 +1,0 @@
-[project]
-name = "app"
-version = "0.1.0"
-dependencies = [ "genanki" ]
-requires-python = "~=3.0.0"
